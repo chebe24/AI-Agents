@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Clasp credentials (sensitive)
+.clasprc.json
+
+# Local clasp info
+.clasp.json.bak
+
+# Environment files
+.env
+.env.local
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Backup files
+*.bak
+*~
+
+# Database exports (may contain PII)
+db/*.csv
+db/*.xlsx
+
+# Archive - keep structure but ignore old files
+archive/**/*.shortcut
+!archive/.gitkeep
+
+# Deprecated - don't track
+deprecated/*
+!deprecated/.gitkeep
