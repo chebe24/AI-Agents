@@ -73,7 +73,7 @@ AI-Agents/
 | Environment | Script ID | Account |
 |-------------|-----------|--------|
 | Dev | `1o_3FUWvqXzFYeJOParcxBYcAacZy5Ig3MbgbTAX5TCixKrrchW7IBOBW` | cary.hebert@gmail.com |
-| Prod | TBD | chebert4@ebrschools.org |
+| Prod | `1B91NVhYy9SMt2ZuaUyL_c1Z0Woz1HkD8kjGGcFZ9XFL-jIA115iup0lu` | chebert4@ebrschools.org |
 
 ---
 
