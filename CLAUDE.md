@@ -82,7 +82,7 @@ AI-Agents/
 | Environment | URL |
 |-------------|-----|
 | Dev | https://script.google.com/macros/s/AKfycbxC3q2qNHivWzRpvLZdWnH8r5uuDTUTPn-NtPG_3g2lC6Gy1ErDiDZoGzJ_LSIp-_Z6mQ/exec |
-| Prod | https://script.google.com/macros/s/AKfycbxbWWHUgQR6GAH2W4GVqZSOAwrAhJQVq-W9egIZV6mMH2-VFawj4KYj0INso1MtYTHw/exec |
+| Prod | https://script.google.com/macros/s/AKfycby9J1FhhWEAzXgP-lfEuEUu3Qtxsdeui5IzvfUKknHg/exec |
 
 ---
 
