@@ -2,9 +2,11 @@
 # =============================================================================
 # AI-Agents Master Script
 # Usage:
-#   ./ai-agents.sh setup        - Initialize clasp projects (run once)
-#   ./ai-agents.sh deploy dev   - Deploy to development
-#   ./ai-agents.sh deploy prod  - Deploy to production
+#   ./ai-agents.sh setup          - Initialize clasp projects (run once)
+#   ./ai-agents.sh switch dev     - Log into dev account + save to GitHub
+#   ./ai-agents.sh switch prod    - Log into prod account + save to GitHub
+#   ./ai-agents.sh deploy dev     - Deploy to development
+#   ./ai-agents.sh deploy prod    - Deploy to production
 # =============================================================================
 
 set -e
@@ -12,9 +14,12 @@ set -e
 # ─── CONFIGURATION ────────────────────────────────────────────────────────────
 DEV_EMAIL="cary.hebert@gmail.com"
 PROD_EMAIL="chebert4@ebrschools.org"
+DEV_SECRET="CLASDEV_JSON"
+PROD_SECRET="CLASPRC_JSON"
+GITHUB_REPO="chebe24/AI-Agents"
 
-DEV_SCRIPT_ID="1rluMr-PxAZzyNbXgI4lXPIyQC7c8kz3m_C7ytWWWNsNwF9g47A9H8VqG"
-PROD_SCRIPT_ID="1y9Lk6g03UMhptqaPJOHews6X8iqYQsbLGqCIFeTI_VgNca8fcP-KAfi0"
+DEV_SCRIPT_ID="1o_3FUWvqXzFYeJOParcxBYcAacZy5Ig3MbgbTAX5TCixKrrchW7IBOBW"
+PROD_SCRIPT_ID="1B91NVhYy9SMt2ZuaUyL_c1Z0Woz1HkD8kjGGcFZ9XFL-jIA115iup0lu"
 
 # ─── COLORS ───────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
@@ -34,6 +39,8 @@ usage() {
   echo "Usage: ./ai-agents.sh [command] [options]"
   echo ""
   echo "  setup            Initialize clasp projects (run once)"
+  echo "  switch dev       Log into dev account + save token to GitHub"
+  echo "  switch prod      Log into prod account + save token to GitHub"
   echo "  deploy dev       Deploy to development Apps Script"
   echo "  deploy prod      Deploy to production Apps Script"
   echo ""
@@ -49,16 +56,83 @@ check_clasp() {
   print_success "clasp is installed"
 }
 
-# ─── SHARED: LOGIN HELPER ─────────────────────────────────────────────────────
-login_to_account() {
-  local account=$1
+# ─── SHARED: CHECK GH CLI ─────────────────────────────────────────────────────
+check_gh() {
+  if ! command -v gh &> /dev/null; then
+    print_error "GitHub CLI not found. Install with: brew install gh"
+    exit 1
+  fi
+  if ! gh auth status &> /dev/null; then
+    print_error "GitHub CLI not logged in. Run: gh auth login"
+    exit 1
+  fi
+  print_success "GitHub CLI ready"
+}
+
+# ─── COMMAND: SWITCH ACCOUNT ──────────────────────────────────────────────────
+# This logs clasp into the right Google account, then saves the token
+# to GitHub Secrets so CI/CD and future sessions can use it.
+cmd_switch() {
+  local ENV=$1
+
+  if [ -z "$ENV" ]; then
+    print_error "Missing environment. Use: switch dev OR switch prod"
+    usage
+  fi
+
+  if [ "$ENV" = "dev" ]; then
+    USER_EMAIL="$DEV_EMAIL"
+    SECRET_NAME="$DEV_SECRET"
+  elif [ "$ENV" = "prod" ]; then
+    USER_EMAIL="$PROD_EMAIL"
+    SECRET_NAME="$PROD_SECRET"
+  else
+    print_error "Invalid environment: $ENV (use dev or prod)"
+    exit 1
+  fi
+
+  check_clasp
+  check_gh
+
   echo ""
-  print_step "Logging into $account"
-  echo "A browser will open. Make sure you select: $account"
-  read -p "Press Enter to continue..."
+  echo "============================================"
+  echo "  Switching to: $USER_EMAIL"
+  echo "============================================"
+
+  # Step 1: Log out of current account
+  print_step "Logging out of current clasp session..."
   clasp logout 2>/dev/null || true
+  print_success "Logged out"
+
+  # Step 2: Log into the right account
+  print_step "Opening browser — select: $USER_EMAIL"
+  echo "  Make sure you pick the correct account in the browser!"
+  read -p "Press Enter to open browser..."
   clasp login
-  print_success "Logged in successfully"
+  print_success "Logged in as $USER_EMAIL"
+
+  # Step 3: Remind user to confirm correct account was selected
+  print_warning "Did you select $USER_EMAIL in the browser? (y/n)"
+  read -p "" confirmed
+  if [[ ! "$confirmed" =~ ^[Yy]$ ]]; then
+    echo "Run switch again and pick the correct account."
+    exit 1
+  fi
+  print_success "Confirmed: logged in as $USER_EMAIL"
+
+  # Step 4: Save token to GitHub Secrets
+  print_step "Saving token to GitHub Secret: $SECRET_NAME..."
+  gh secret set "$SECRET_NAME" --repo "$GITHUB_REPO" < ~/.clasprc.json
+  print_success "Token saved to GitHub → $SECRET_NAME"
+
+  echo ""
+  echo "============================================"
+  print_success "Switched to $ENV ($USER_EMAIL)"
+  echo "============================================"
+  echo ""
+  echo "You can now run:"
+  echo "  ./ai-agents.sh deploy $ENV"
+  echo ""
 }
 
 # ─── COMMAND: SETUP ───────────────────────────────────────────────────────────
@@ -85,18 +159,16 @@ cmd_setup() {
 
   # Enable Apps Script API reminder
   echo ""
-  print_warning "IMPORTANT: Before continuing, make sure you have enabled"
-  print_warning "the Apps Script API for BOTH Google accounts at:"
+  print_warning "IMPORTANT: Enable the Apps Script API for BOTH accounts at:"
   print_warning "https://script.google.com/home/usersettings"
-  read -p "Have you done this? (y/n): " api_enabled
+  read -p "Done? (y/n): " api_enabled
   if [[ ! "$api_enabled" =~ ^[Yy]$ ]]; then
-    echo ""
     echo "Please enable the API first, then run setup again."
     exit 0
   fi
 
   # ── DEV PROJECT SETUP ──
-  login_to_account "$DEV_EMAIL"
+  cmd_switch "dev"
 
   if [ ! -d "dev-project" ]; then
     mkdir -p dev-project
@@ -114,7 +186,7 @@ cmd_setup() {
 
   # Create template Code.gs for dev
   if [ ! -f "dev-project/Code.gs" ]; then
-    print_step "Creating template Code.gs for dev..."
+    print_step "Creating Code.gs for dev..."
     cat > dev-project/Code.gs << 'EOF'
 /**
  * AI-Agents Main Code
@@ -152,15 +224,13 @@ EOF
     print_success "Dev Code.gs created"
   fi
 
-  # Push dev
-  print_step "Pushing dev project..."
   cd dev-project
   clasp push
   cd ..
   print_success "Dev project pushed!"
 
   # ── PROD PROJECT SETUP ──
-  login_to_account "$PROD_EMAIL"
+  cmd_switch "prod"
 
   if [ ! -d "prod-project" ]; then
     mkdir -p prod-project
@@ -176,9 +246,7 @@ EOF
     print_success "Prod project already exists"
   fi
 
-  # Create Code.gs for prod
   if [ ! -f "prod-project/Code.gs" ]; then
-    print_step "Creating template Code.gs for prod..."
     cp dev-project/Code.gs prod-project/Code.gs
     sed -i '' "s/cary.hebert@gmail.com/chebert4@ebrschools.org/g" \
       prod-project/Code.gs 2>/dev/null || \
@@ -187,8 +255,6 @@ EOF
     print_success "Prod Code.gs created"
   fi
 
-  # Push prod
-  print_step "Pushing prod project..."
   cd prod-project
   clasp push
   cd ..
@@ -216,7 +282,7 @@ EOF
 
 # ─── COMMAND: DEPLOY ──────────────────────────────────────────────────────────
 cmd_deploy() {
-  ENV=$1
+  local ENV=$1
 
   if [ -z "$ENV" ]; then
     print_error "Missing environment. Use: deploy dev OR deploy prod"
@@ -244,7 +310,6 @@ cmd_deploy() {
     exit 1
   fi
 
-  # Verify project folder exists
   if [ ! -d "$PROJECT_DIR" ]; then
     print_error "Project folder not found: $PROJECT_DIR"
     echo "Run: ./ai-agents.sh setup"
@@ -253,24 +318,21 @@ cmd_deploy() {
 
   check_clasp
 
-  # Log into the right account
-  login_to_account "$USER_EMAIL"
+  # Always switch to the right account before deploying
+  cmd_switch "$ENV"
 
   cd "$PROJECT_DIR"
 
-  # Push
   print_step "Pushing changes to Apps Script..."
   clasp push
   print_success "Push complete!"
 
-  # Deploy (create a new version)
-  print_step "Creating deployment..."
+  print_step "Creating deployment version..."
   clasp deploy --description "Deploy $(date '+%Y-%m-%d %H:%M')"
   print_success "Deployed!"
 
   cd ..
 
-  # Git reminder
   echo ""
   print_step "Don't forget to commit to GitHub!"
   echo "  git add ."
@@ -286,6 +348,9 @@ COMMAND=$1
 case "$COMMAND" in
   setup)
     cmd_setup
+    ;;
+  switch)
+    cmd_switch "$2"
     ;;
   deploy)
     cmd_deploy "$2"
