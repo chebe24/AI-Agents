@@ -1,78 +1,109 @@
-# AI-Agents Workflow System
+# AI-Agents
 
-Multi-account (dev/prod) Apps Script + iOS Shortcuts for AI automations. Tracks in Sheets DB.
+**A dual-account Google Apps Script + iOS Shortcuts automation system for teaching and personal productivity.**
 
-## Quick Start
-
-1. `npm i -g @google/clasp`
-2. Edit emails in deploy.sh: dev@yourdomain.com, prod@yourdomain.com
-3. `./clasp-setup.sh`
-4. `./deploy.sh dev` → code/edit
-5. `./deploy.sh prod` → deploy/execute
-
-## Structure
-
-| Folder | Purpose |
-|--------|---------|
-| `dev-project/` | Apps Script development via clasp |
-| `prod-project/` | Production Apps Script deployment |
-| `active/` | iOS Shortcuts exports (iCloud share to prod iPhone) |
-| `db/` | Sheets inventory backups |
-| `deprecated/` | Old workflows pending deletion |
-| `archive/` | Long-term storage by year |
-| `scripts/` | Utility scripts |
-
-## DB Schema (Google Sheets: AI_Agents_Inventory)
-
-| Column | Description |
-|--------|-------------|
-| ID | Unique identifier |
-| Name | Agent/workflow name |
-| Ecosystem | iOS / Apps Script / Hybrid |
-| Status | Active / Deprecated / Archive |
-| Git | GitHub repo link |
-| Drive Path | Google Drive location |
-| PII_Level | None / Low / High |
-| Last Updated | Timestamp |
-
-## Deploy Flow
-
-```
-dev → Git tag → clasp push prod → Webapp URL to DB → Prod triggers run
-```
-
-## Security
-
-- **Prod execution**: `Execute as: Me (dev)`, `Access: Anyone`
-- **Account check**: checkAccount() in Code.gs prevents wrong-account execution
-- **No secrets committed**: API keys in Script Properties only
-
-## Adding New Agents
-
-1. Create `active/agent-name/` with `.shortcut` + `prompt.md`
-2. Update DB row in AI_Agents_Inventory
-3. Deploy prod changes: `./deploy.sh prod`
-4. Git commit: `feat: Add agent-name workflow`
-
-## Commands Reference
-
-| Task | Command |
-|------|---------|
-| Deploy to dev | `./deploy.sh dev` |
-| Deploy to prod | `./deploy.sh prod` |
-| Check clasp status | `clasp status --user dev@yourdomain.com` |
-| List active agents | `ls active/` |
-| Cleanup old files | `find deprecated/ -mtime +90 -delete` |
-| Archive by year | `mv deprecated/* archive/$(date +%Y)/` |
-
-## Troubleshooting
-
-**clasp login fails**: Clear credentials with `clasp logout` then retry
-
-**Wrong account executing**: Check `checkAccount()` in Code.gs matches expected email
-
-**Push rejected**: Run `clasp pull` first to sync, resolve conflicts
+Built by Cary Hebert — 1st Grade French Immersion teacher at BR FLAIM International School, Baton Rouge, LA. Transitioning to Shanghai High School International Division in August 2026.
 
 ---
 
-Built with Claude Code. Edit CLAUDE.md for agent guidelines.
+## What This Does
+
+This repo manages a webhook-based AI agent system that:
+- Receives requests from iOS Shortcuts via Google Apps Script web apps
+- Separates **development** (cary.hebert@gmail.com) from **production** (chebert4@ebrschools.org)
+- Logs activity to Google Sheets
+- Supports educational automation workflows (lesson plans, standards lookup, etc.)
+- Includes a Trilingual Standards RAG Engine (English/French/Mandarin) using Google's free embedding API + Chroma
+
+---
+
+## Folder Structure
+
+```
+AI-Agents/
+├── README.md               # This file
+├── ROADMAP.md              # Version history and goals
+├── CLAUDE.md               # AI assistant bootstrap instructions
+├── .gitignore              # Security: excludes .env, credentials
+├── appsscript.json         # Apps Script manifest
+├── clasp-setup.sh          # One-time setup: creates dev + prod projects
+├── deploy.sh               # Deploy to dev or prod
+├── scripts/
+│   └── Code.gs             # Main Apps Script code (dev version)
+├── Dev/
+│   ├── GC-IAM-Auditor-README.md
+│   └── GoogleCloud-Credentials-Security.md
+├── standards_raw/          # Drop PDFs/CSVs here for RAG embedding
+├── standards_embed.py      # Embeds documents into Chroma vector DB
+├── query_test.py           # Test semantic queries
+├── test_env.py             # Verify .env API key setup
+├── process_math_lp.py      # Math lesson plan processor
+└── requirements.txt        # Python dependencies
+```
+
+---
+
+## Quick Start
+
+### Apps Script (clasp)
+
+```bash
+# 1. Install clasp
+npm install -g @google/clasp
+
+# 2. One-time setup (creates dev + prod projects)
+./clasp-setup.sh
+
+# 3. Deploy
+./deploy.sh dev    # Push to development
+./deploy.sh prod   # Push to production (asks confirmation)
+```
+
+### RAG Engine (Python)
+
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Add your Google API key
+echo "GOOGLE_API_KEY=your_key_here" > .env
+
+# Test setup
+python test_env.py
+
+# Drop PDFs/CSVs into standards_raw/, then embed
+python standards_embed.py
+
+# Run test queries
+python query_test.py
+```
+
+---
+
+## Accounts
+
+| Environment | Account | Purpose |
+|-------------|---------|---------|
+| Dev | cary.hebert@gmail.com | Coding, testing |
+| Prod | chebert4@ebrschools.org | Live classroom use |
+
+---
+
+## Security
+
+- `.env` is excluded from Git (never commit API keys)
+- `.clasprc.json` is excluded (clasp credentials)
+- `db/` CSV exports are excluded (may contain student data — FERPA)
+- Account verification built into `Code.gs` via `checkAccount()`
+
+---
+
+## Related Projects
+
+- **Nexus AI** — AI teaching coach system
+- **Maître** — AI art instructor using classical atelier methods
+- **FLAIM File Naming Convention v5.0** — cross-platform file organization standard
+
+---
+
+*Last updated: February 2026*
