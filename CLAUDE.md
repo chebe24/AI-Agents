@@ -68,6 +68,15 @@ AI-Agents/
 
 ---
 
+## Script IDs
+
+| Environment | Script ID | Account |
+|-------------|-----------|--------|
+| Dev | `1o_3FUWvqXzFYeJOParcxBYcAacZy5Ig3MbgbTAX5TCixKrrchW7IBOBW` | cary.hebert@gmail.com |
+| Prod | TBD | chebert4@ebrschools.org |
+
+---
+
 ## Current Status (February 2026)
 
 - ✅ Repo structure cleaned up
