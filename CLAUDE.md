@@ -68,6 +68,15 @@ AI-Agents/
 
 ---
 
+## Spreadsheets
+
+| Environment | Name | ID |
+|-------------|------|----|
+| Dev | AI Agents Development Logs | `1-n1vERWG9X0eAi838N18w3X69rRX3YtOnJ6DDeYnhy` |
+| Prod | AI Agents Command Hub | `1qEZUBf4A1djNF5CstRxJa2UQbQqCnIZqavSF8mkKUpU` |
+
+---
+
 ## Webapp URLs
 
 | Environment | URL |
