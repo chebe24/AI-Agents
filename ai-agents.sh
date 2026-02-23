@@ -324,7 +324,7 @@ cmd_deploy() {
   cd "$PROJECT_DIR"
 
   print_step "Pushing changes to Apps Script..."
-  clasp push
+  clasp push --force
   print_success "Push complete!"
 
   print_step "Creating deployment version..."
