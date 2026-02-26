@@ -1,202 +1,84 @@
 // =============================================================================
-// AI-AGENTS DEV — NEXUS COMMAND HUB
-// Account: cary.hebert@gmail.com
-// Sheet: Agents-Production-Log (dev test sheet)
+// Code.gs — Gateway-OS Inventory Management
+// =============================================================================
+// Handles Drive folder scanning, inventory tracking, and deprecation flagging.
+// Webhook entry points (doGet/doPost) have moved to Router.gs.
+// Shared helpers have moved to Utilities.gs.
+// Constants have moved to Config.gs.
 // =============================================================================
 
-const VALID_SUBJECTS = ["Math", "Sci", "SS"];
-const VALID_ANNOTATIONS = ["Doc", "Pres", "Wks", "Assess", "Guide", "Annot"];
-const SHEET_NAME = "File Ops";
-const SPREADSHEET_ID = "1-n1vERWG9X0eAi838N18w3X69rRX3YtOnJ6DDeYnhy";
-
-// =============================================================================
-// ACCOUNT GUARD — prevents wrong-account execution
-// =============================================================================
-
-function checkAccount() {
-  const expected = 'cary.hebert@gmail.com';
-  const actual = Session.getActiveUser().getEmail();
-  if (actual !== expected) {
-    throw new Error(`Wrong account! Expected ${expected}, got ${actual}`);
-  }
-  return true;
-}
-
-// =============================================================================
-// WEBHOOK ENTRY POINTS
-// =============================================================================
-
-function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({
-    status: 'ok',
-    environment: 'development',
-    timestamp: new Date().toISOString()
-  })).setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  try {
-    logSecurityEvent('WEBHOOK_RECEIVED', {
-      timestamp: new Date().toISOString(),
-      contentType: e?.contentType || 'unknown',
-      postData: e?.postData ? 'present' : 'missing'
-    });
-
-    if (!e?.postData?.contents) {
-      return buildResponse(400, "Empty request body");
-    }
-
-    const payload = JSON.parse(e.postData.contents);
-    const fileName = payload.fileName || "";
-    const subjectCode = payload.subjectCode || "";
-    const status = payload.status || "";
-
-    if (!fileName || !subjectCode || !status) {
-      return buildResponse(400, "Missing required fields: fileName, subjectCode, status");
-    }
-
-    const validation = validateFileName(fileName);
-    const sheet = getOrCreateSheet(SHEET_NAME);
-    sheet.appendRow([
-      new Date(),
-      fileName,
-      subjectCode,
-      status,
-      validation.valid ? "PASS" : "FAIL",
-      validation.errors.join("; ")
-    ]);
-
-    if (!validation.valid) {
-      return buildResponse(200, "Logged with validation errors", validation.errors);
-    }
-
-    return buildResponse(200, "Logged successfully");
-
-  } catch (err) {
-    logSecurityEvent('WEBHOOK_ERROR', { error: err.message });
-    return buildResponse(500, "Server error: " + err.message);
-  }
-}
-
-// =============================================================================
-// INVENTORY UPDATE LOGIC
-// =============================================================================
-
+/**
+ * Scan the configured Drive folder and update the Inventory sheet.
+ * Run this manually or on a time-based trigger.
+ */
 function updateInventory() {
   checkAccount();
   try {
     const folderId = getScriptProperty('DRIVE_FOLDER_ID');
-    if (!folderId) {
-      throw new Error('DRIVE_FOLDER_ID not set in Script Properties');
-    }
+    if (!folderId) throw new Error('DRIVE_FOLDER_ID not set in Script Properties.');
 
     const folder = DriveApp.getFolderById(folderId);
-    const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName('Inventory') || createInventorySheet();
+    const sheet  = getOrCreateSheet('Inventory', [
+      'ID', 'Name', 'Ecosystem', 'Status', 'Last Updated', 'URL', 'Notes'
+    ]);
 
-    logSecurityEvent('INVENTORY_UPDATE_START', { folderId: folderId });
+    logEvent('INVENTORY_UPDATE_START', { folderId });
 
     const existingData = sheet.getDataRange().getValues();
-    if (existingData.length === 0) {
-      throw new Error('Inventory sheet is empty - run createInventorySheet first');
-    }
+    const headers      = existingData[0];
+    const idCol        = headers.indexOf('ID');
+    if (idCol === -1) throw new Error('Inventory sheet missing "ID" header.');
 
-    const headers = existingData[0];
-    const idCol = headers.indexOf('ID');
-    if (idCol === -1) {
-      throw new Error('Inventory sheet missing "ID" header column');
-    }
-
-    const existingIds = existingData.slice(1).map(row => row[idCol]).filter(id => id);
+    const existingIds = existingData.slice(1).map(row => row[idCol]).filter(Boolean);
 
     const activeFolders = folder.getFoldersByName('active');
     if (activeFolders.hasNext()) {
-      scanFolder(activeFolders.next(), 'Active', sheet, existingIds);
+      _scanFolder(activeFolders.next(), 'Active', sheet, existingIds);
     }
 
-    const deprecatedCount = flagDeprecated(sheet);
-    logSecurityEvent('INVENTORY_UPDATE_COMPLETE', { deprecatedCount: deprecatedCount });
+    const deprecatedCount = _flagDeprecated(sheet);
+    logEvent('INVENTORY_UPDATE_COMPLETE', { deprecatedCount });
 
-  } catch (error) {
-    logSecurityEvent('INVENTORY_UPDATE_ERROR', { error: error.message });
-    throw error;
+  } catch (err) {
+    logEvent('INVENTORY_UPDATE_ERROR', { error: err.message });
+    throw err;
   }
 }
 
-function scanFolder(folder, status, sheet, existingIds) {
+// =============================================================================
+// PRIVATE HELPERS
+// =============================================================================
+
+function _scanFolder(folder, status, sheet, existingIds) {
   const subfolders = folder.getFolders();
   while (subfolders.hasNext()) {
     const subfolder = subfolders.next();
-    const id = subfolder.getId();
-    const ecosystem = detectEcosystem(subfolder);
+    const id        = subfolder.getId();
+    const ecosystem = _detectEcosystem(subfolder);
 
     if (existingIds.includes(id)) {
-      updateRow(sheet, id, { 'Last Updated': new Date(), 'Status': status });
+      _updateRow(sheet, id, { 'Last Updated': new Date(), 'Status': status });
     } else {
       sheet.appendRow([
         id,
         subfolder.getName(),
         ecosystem,
         status,
-        '',
+        new Date(),
         subfolder.getUrl(),
-        'None',
-        new Date()
+        ''
       ]);
     }
   }
 }
 
-// =============================================================================
-// VALIDATION & HELPERS
-// =============================================================================
-
-function validateFileName(fileName) {
-  const errors = [];
-
-  const dotIndex = fileName.lastIndexOf(".");
-  if (dotIndex === -1) {
-    errors.push("Missing file extension");
-    return { valid: false, errors: errors };
-  }
-
-  const ext = fileName.substring(dotIndex + 1).toLowerCase();
-  if (ext !== "pdf") {
-    errors.push("Expected .pdf, got ." + ext);
-  }
-
-  const base = fileName.substring(0, dotIndex);
-  const parts = base.split("_");
-  if (parts.length !== 4) {
-    errors.push(`Expected 4 underscore segments, got ${parts.length}: ${base}`);
-  }
-
-  return { valid: errors.length === 0, errors: errors };
-}
-
-function getOrCreateSheet(name) {
-  const ss = getSpreadsheet();
-  let sheet = ss.getSheetByName(name);
-  if (!sheet) {
-    sheet = ss.insertSheet(name);
-    sheet.appendRow(["Timestamp", "File Name", "Subject Code", "Status", "Validation", "Errors"]);
-  }
-  return sheet;
-}
-
-function buildResponse(code, message, errors) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ code: code, message: message, errors: errors || [] }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function detectEcosystem(folder) {
+function _detectEcosystem(folder) {
   const files = folder.getFiles();
   let hasShortcut = false, hasGS = false;
 
   while (files.hasNext()) {
-    const file = files.next();
-    const mimeType = file.getMimeType();
+    const file      = files.next();
+    const mimeType  = file.getMimeType();
     const nameLower = file.getName().toLowerCase();
 
     if (mimeType === 'application/vnd.google-apps.shortcut') hasShortcut = true;
@@ -204,15 +86,15 @@ function detectEcosystem(folder) {
   }
 
   if (hasShortcut && hasGS) return 'Hybrid';
-  if (hasShortcut) return 'iOS';
-  if (hasGS) return 'Apps Script';
+  if (hasShortcut)          return 'iOS';
+  if (hasGS)                return 'Apps Script';
   return 'Unknown';
 }
 
-function updateRow(sheet, id, updates) {
-  const data = sheet.getDataRange().getValues();
+function _updateRow(sheet, id, updates) {
+  const data    = sheet.getDataRange().getValues();
   const headers = data[0];
-  const idCol = headers.indexOf('ID');
+  const idCol   = headers.indexOf('ID');
 
   for (let i = 1; i < data.length; i++) {
     if (data[i][idCol] === id) {
@@ -225,24 +107,23 @@ function updateRow(sheet, id, updates) {
   }
 }
 
-function flagDeprecated(sheet) {
-  const config = getEnvironmentConfig();
-  const data = sheet.getDataRange().getValues();
-  const headers = data[0];
+function _flagDeprecated(sheet) {
+  const data      = sheet.getDataRange().getValues();
+  const headers   = data[0];
   const statusCol = headers.indexOf('Status');
   const updatedCol = headers.indexOf('Last Updated');
 
   if (statusCol === -1 || updatedCol === -1) {
-    console.warn('flagDeprecated: Missing required columns');
+    console.warn('_flagDeprecated: Missing required columns.');
     return 0;
   }
 
   const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - (config.deprecatedDays || 30));
+  cutoff.setDate(cutoff.getDate() - DEPRECATED_DAYS);
 
   let count = 0;
   for (let i = 1; i < data.length; i++) {
-    const rowStatus = data[i][statusCol];
+    const rowStatus  = data[i][statusCol];
     const rowUpdated = new Date(data[i][updatedCol]);
     if (rowStatus === 'Active' && !isNaN(rowUpdated.getTime()) && rowUpdated < cutoff) {
       sheet.getRange(i + 1, statusCol + 1).setValue('Deprecated');
@@ -253,40 +134,14 @@ function flagDeprecated(sheet) {
 }
 
 // =============================================================================
-// CORE UTILITIES
-// =============================================================================
-
-function logSecurityEvent(eventType, payload) {
-  console.log(`[SECURITY ${eventType}]`, JSON.stringify(payload));
-}
-
-function getScriptProperty(key) {
-  return PropertiesService.getScriptProperties().getProperty(key);
-}
-
-function getSpreadsheet() {
-  return SpreadsheetApp.openById(SPREADSHEET_ID);
-}
-
-function createInventorySheet() {
-  const ss = getSpreadsheet();
-  const sheet = ss.insertSheet('Inventory');
-  sheet.appendRow(['ID', 'Name', 'Ecosystem', 'Status', 'Last Updated', 'URL', 'Notes']);
-  return sheet;
-}
-
-function getEnvironmentConfig() {
-  return { deprecatedDays: 30 };
-}
-
-// =============================================================================
-// TEST FUNCTION — run this in Apps Script editor to verify setup
+// TEST — Run in Apps Script editor to verify the full setup
 // =============================================================================
 
 function testSetup() {
   checkAccount();
   const ss = getSpreadsheet();
-  Logger.log('Connected to sheet: ' + ss.getName());
-  Logger.log('Environment: development');
-  Logger.log('Setup complete!');
+  Logger.log('Environment : ' + ENV);
+  Logger.log('Connected to: ' + ss.getName());
+  Logger.log('Account     : ' + ACCOUNT);
+  Logger.log('Setup OK.');
 }

@@ -1,0 +1,9 @@
+**/*.py
+**/*.sh
+**/*.md
+**/*.json
+node_modules/**
+.git/**
+.vscode/**
+package-lock.json
+package.json

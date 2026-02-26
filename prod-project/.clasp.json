@@ -1,4 +1,4 @@
 {
-  "scriptId": "1B91NVhYy9SMt2ZuaUyL_c1Z0Woz1HkD8kjGGcFZ9XFL-jIA115iup0lu",
-  "rootDir": "."
+  "scriptId": "YOUR_PROD_SCRIPT_ID_HERE",
+  "rootDir": "prod-project/"
 }

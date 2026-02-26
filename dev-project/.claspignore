@@ -1,0 +1,7 @@
+**/*.json
+!appsscript.json
+**/*.py
+**/*.sh
+**/*.md
+node_modules/**
+.git/**
