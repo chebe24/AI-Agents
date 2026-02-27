@@ -1,38 +1,44 @@
 # AI-Agents Roadmap
 
-## Current Status: v1.0 Setup Phase
+## Current Status: v1.0 Complete ✓
 
 ### Completed
-- [ ] Folder structure created
-- [ ] CLAUDE.md guidelines added
-- [ ] README documentation written
-- [ ] Deploy scripts created
-- [ ] Git repository initialized
-
-### In Progress
-- [ ] clasp login for dev account
-- [ ] clasp login for prod account
-- [ ] First Apps Script deployment
+- [x] Folder structure created
+- [x] CLAUDE.md guidelines added
+- [x] README documentation written
+- [x] Deploy scripts created (ai-agents.sh)
+- [x] Git repository initialized
+- [x] clasp login for dev account (cary.hebert@gmail.com)
+- [x] clasp login for prod account (chebert4@ebrschools.org)
+- [x] First Apps Script deployment — dev and prod both live
+- [x] Gateway-OS modular architecture: Router.gs, Code.gs, Utilities.gs, Config.gs
+- [x] Webhook endpoint with secret guard (doPost)
+- [x] updateInventory() with Drive folder scanning
+- [x] testSetup() verified in both environments
+- [x] AI_Agents_Inventory Google Sheet created (Agents_Dev_Logbook for dev)
+- [x] Dev → prod deploy flow tested and working
+- [x] Old pre-Gateway-OS duplicate script removed from Drive
 
 ### Next Up
-- [ ] Create AI_Agents_Inventory Google Sheet
 - [ ] Add first iOS Shortcut to active/
-- [ ] Test dev → prod deploy flow
+- [ ] Set DRIVE_FOLDER_ID Script Property in prod and run updateInventory()
 - [ ] Tag v1.0-stable release
+- [ ] Register Journal agent in Router.gs switch statement
 
 ---
 
 ## Version History
 
-### v1.0 (Target)
-- Basic dev/prod separation working
-- Single Apps Script deployed
-- DB tracking sheet created
-- One iOS Shortcut integrated
+### v1.0 (Complete — 2026-02-27)
+- Dev/prod separation working
+- Gateway-OS modular architecture deployed
+- DB tracking sheets operational
+- Webhook routing with secret auth
 
 ### v1.1 (Planned)
 - Automated DB sync script
 - Multiple shortcuts in active/
+- Journal agent integration
 - Deprecation workflow tested
 
 ### v2.0 (Future)
@@ -45,11 +51,11 @@
 ## Ideas Backlog
 
 - Gym tracker shortcut
-- Travel logger shortcut  
+- Travel logger shortcut
 - Daily standup automation
 - Email digest generator
 - Calendar sync agent
 
 ---
 
-Last updated: Auto-sync with commits
+Last updated: 2026-02-27

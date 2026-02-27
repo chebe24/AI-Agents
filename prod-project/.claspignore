@@ -1,9 +1,7 @@
 **/*.py
 **/*.sh
 **/*.md
-**/*.json
+.clasp.json
 node_modules/**
 .git/**
 .vscode/**
-package-lock.json
-package.json
