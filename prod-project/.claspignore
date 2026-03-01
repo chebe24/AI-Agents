@@ -1,7 +1,8 @@
+**/*.json
+!appsscript.json
 **/*.py
 **/*.sh
 **/*.md
-.clasp.json
 node_modules/**
 .git/**
 .vscode/**

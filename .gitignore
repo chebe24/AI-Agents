@@ -41,10 +41,24 @@ logs/
 db/*.csv
 db/*.xlsx
 
-# Archive - keep structure but ignore old files
-archive/**/*.shortcut
+# RAG engine generated output (never commit vector DB or raw source files)
+standards_chroma/
+standards_raw/*.pdf
+standards_raw/*.csv
+
+# Binary/Office files — use Google Drive instead of Git for these
+*.xlsx
+*.xls
+*.docx
+*.doc
+*.pptx
+*.ppt
+*.pdf
+
+# Archive — keep structure but ignore old files
+archive/**/*
 !archive/.gitkeep
 
-# Deprecated - don't track
-deprecated/*
+# Deprecated — keep structure but ignore contents
+deprecated/**/*
 !deprecated/.gitkeep

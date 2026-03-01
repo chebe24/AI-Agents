@@ -1,3 +1,8 @@
+# ⚠️  SHELVED — RAG Engine dependencies. Do NOT run pip install against this file
+# unless you are explicitly working on the Trilingual RAG Engine (not a current priority).
+# These packages are heavy (Chroma, LangChain, unstructured) and unrelated to Gateway-OS.
+# See scripts/standards_embed.py and CLAUDE.md for context.
+
 python-dotenv>=1.0.0
 langchain-google-genai>=0.0.5
 langchain-chroma>=0.1.0
