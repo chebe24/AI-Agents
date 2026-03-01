@@ -1,7 +1,7 @@
 # GC-IAM-Auditor — Planning Notes
 
 > **Status: Not started. GCP infrastructure required before building.**
-> When ready, scaffold with: `./ai-agents.sh gem IamAuditor`
+> When ready, scaffold with: `./ai-agents.sh agent IamAuditor`
 
 ---
 
@@ -26,7 +26,7 @@ Flags accounts inactive for 30+ days and logs results to the AI Agents Command H
 
 ## Planned Gateway-OS Integration
 
-- **Gem file:** `dev-project/gems/IamAuditorGem.gs`
+- **Agent file:** `dev-project/agents/IamAuditorAgent.gs`
 - **Trigger:** Monthly time-based (not webhook-driven)
 - **Account:** `cary.hebert@gmail.com` (dev only to start)
 - **Log target:** AI Agents Command Hub sheet → new tab "IAM Audit"
@@ -42,7 +42,7 @@ Flags accounts inactive for 30+ days and logs results to the AI Agents Command H
  * @prereqs   OAuth2.gs library, GCP staging project, Service Account configured.
  */
 
-function IamAuditorGem_init(payload) {
+function IamAuditorAgent_init(payload) {
   try {
     auditIAMKeys();
     return buildResponse(200, "IAM audit complete.");
@@ -127,7 +127,7 @@ function testSetup() {
 - [ ] Create Service Account, assign roles, download key
 - [ ] Add OAuth2.gs library to dev-project in GAS editor
 - [ ] Set Script Properties (`IAM_SA_EMAIL`, `IAM_SA_PRIVATE_KEY`)
-- [ ] Scaffold: `./ai-agents.sh gem IamAuditor`
+- [ ] Scaffold: `./ai-agents.sh agent IamAuditor`
 - [ ] Paste template into generated file, adapt as needed
 - [ ] Run `testSetup()` in GAS editor
 - [ ] Run `auditIAMKeys()` manually to verify logging

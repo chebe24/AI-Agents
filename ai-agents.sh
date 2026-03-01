@@ -7,7 +7,7 @@
 #
 # Commands:
 #   auth   [dev|prod]    Check / rotate clasp OAuth + GitHub Secret
-#   gem    <GemName>     Scaffold a new Gem file in dev-project/gems/
+#   agent  <AgentName>   Scaffold a new Agent file in dev-project/agents/
 #   deploy <dev|prod>    Push code to target GAS project via clasp
 #   help                 Show this message
 # =============================================================================
@@ -17,7 +17,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEV_DIR="$ROOT_DIR/dev-project"
 PROD_DIR="$ROOT_DIR/prod-project"
-GEMS_DIR="$DEV_DIR/gems"
+AGENTS_DIR="$DEV_DIR/agents"
 
 # ── Colors ───────────────────────────────────────────────────────────────────
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
@@ -68,52 +68,52 @@ refresh_clasp_auth() {
 }
 
 # =============================================================================
-# FUNCTION: create_gem
+# FUNCTION: create_agent
 #
-# Scaffolds a new Gem file in dev-project/gems/ with standard boilerplate.
-# A "Gem" is a self-contained automation handler that plugs into Router.gs.
+# Scaffolds a new Agent file in dev-project/agents/ with standard boilerplate.
+# An "Agent" is a self-contained automation handler that plugs into Router.gs.
 #
-# Usage : ./ai-agents.sh gem Journal
-# Creates: dev-project/gems/JournalGem.gs
+# Usage : ./ai-agents.sh agent Journal
+# Creates: dev-project/agents/JournalAgent.gs
 #
 # After creation, register the route in dev-project/Router.gs:
 #   case "journal":
-#     return JournalGem_init(payload);
+#     return JournalAgent_init(payload);
 # =============================================================================
-create_gem() {
-  local gem_name="${1:-}"
-  [[ -z "$gem_name" ]] && error "Gem name required. Usage: ./ai-agents.sh gem <Name>"
+create_agent() {
+  local agent_name="${1:-}"
+  [[ -z "$agent_name" ]] && error "Agent name required. Usage: ./ai-agents.sh agent <Name>"
 
   # Normalize: strip non-alphanumeric, capitalize first letter
-  gem_name="$(echo "$gem_name" | sed 's/[^a-zA-Z0-9]//g')"
-  gem_name="${gem_name^}"
+  agent_name="$(echo "$agent_name" | sed 's/[^a-zA-Z0-9]//g')"
+  agent_name="${agent_name^}"
 
-  local gem_file="$GEMS_DIR/${gem_name}Gem.gs"
-  mkdir -p "$GEMS_DIR"
+  local agent_file="$AGENTS_DIR/${agent_name}Agent.gs"
+  mkdir -p "$AGENTS_DIR"
 
-  [[ -f "$gem_file" ]] && error "Gem already exists: $gem_file"
+  [[ -f "$agent_file" ]] && error "Agent already exists: $agent_file"
 
   local action_key
-  action_key="$(echo "$gem_name" | tr '[:upper:]' '[:lower:]')"
+  action_key="$(echo "$agent_name" | tr '[:upper:]' '[:lower:]')"
 
-  info "Scaffolding new Gem: ${gem_name}Gem.gs ..."
+  info "Scaffolding new Agent: ${agent_name}Agent.gs ..."
 
-  cat > "$gem_file" <<TEMPLATE
+  cat > "$agent_file" <<TEMPLATE
 /**
- * @file      ${gem_name}Gem.gs
+ * @file      ${agent_name}Agent.gs
  * @author    Cary Hebert
  * @created   $(date +%Y-%m-%d)
  * @version   1.0.0
  *
- * Gateway-OS Gem — handles all "${action_key}" webhook actions.
+ * Gateway-OS Agent — handles all "${action_key}" webhook actions.
  *
  * ROUTER CONTRACT
- *   Router.gs calls ${gem_name}Gem_init(payload) when payload.action === "${action_key}"
+ *   Router.gs calls ${agent_name}Agent_init(payload) when payload.action === "${action_key}"
  *   Return shape: { status: "ok"|"error", message: String, data?: Any }
  *
  * REGISTRATION (add to dev-project/Router.gs switch statement):
  *   case "${action_key}":
- *     return ${gem_name}Gem_init(payload);
+ *     return ${agent_name}Agent_init(payload);
  */
 
 /**
@@ -121,43 +121,43 @@ create_gem() {
  * @param {Object} payload - Parsed JSON from the incoming webhook POST body.
  * @returns {{ status: string, message: string, data?: any }}
  */
-function ${gem_name}Gem_init(payload) {
+function ${agent_name}Agent_init(payload) {
   try {
-    logEvent('${gem_name^^}_GEM_START', { payload: JSON.stringify(payload) });
+    logEvent('${agent_name^^}_AGENT_START', { payload: JSON.stringify(payload) });
 
-    // ── TODO: Implement ${gem_name} logic below ──────────────────────────
-    var result = _${gem_name}Gem_process(payload);
+    // ── TODO: Implement ${agent_name} logic below ──────────────────────────
+    var result = _${agent_name}Agent_process(payload);
     // ────────────────────────────────────────────────────────────────────
 
-    logEvent('${gem_name^^}_GEM_COMPLETE', { result: JSON.stringify(result) });
-    return buildResponse(200, "${gem_name} completed.", result);
+    logEvent('${agent_name^^}_AGENT_COMPLETE', { result: JSON.stringify(result) });
+    return buildResponse(200, "${agent_name} completed.", result);
 
   } catch (e) {
-    logEvent('${gem_name^^}_GEM_ERROR', { error: e.message });
-    return buildResponse(500, "Error in ${gem_name}Gem: " + e.message);
+    logEvent('${agent_name^^}_AGENT_ERROR', { error: e.message });
+    return buildResponse(500, "Error in ${agent_name}Agent: " + e.message);
   }
 }
 
 /**
- * Core processing logic for ${gem_name}.
+ * Core processing logic for ${agent_name}.
  * Keep business logic here, not in init().
  * @param {Object} payload
  * @returns {any}
  */
-function _${gem_name}Gem_process(payload) {
+function _${agent_name}Agent_process(payload) {
   // Replace this stub with real logic.
   // Example: return { processed: true, inputReceived: payload };
   return null;
 }
 TEMPLATE
 
-  info "Created: $gem_file"
+  info "Created: $agent_file"
   echo ""
   info "Next steps:"
-  echo "  1. Open $gem_file and add your logic inside _${gem_name}Gem_process()"
+  echo "  1. Open $agent_file and add your logic inside _${agent_name}Agent_process()"
   echo "  2. Register the route in dev-project/Router.gs:"
   echo "       case \"${action_key}\":"
-  echo "         return ${gem_name}Gem_init(payload);"
+  echo "         return ${agent_name}Agent_init(payload);"
   echo "  3. Deploy: ./ai-agents.sh deploy dev"
 }
 
@@ -205,22 +205,22 @@ main() {
 
   case "$command" in
     auth)    refresh_clasp_auth "$@" ;;
-    gem)     create_gem         "$@" ;;
+    agent)   create_agent       "$@" ;;
     deploy)  deploy             "$@" ;;
     help|*)
       echo ""
       echo "  Gateway-OS CLI — ai-agents.sh"
       echo ""
       echo "  Usage:"
-      echo "    ./ai-agents.sh auth   [dev|prod]   Check/rotate clasp auth + GitHub Secret"
-      echo "    ./ai-agents.sh gem    <GemName>    Scaffold a new Gem in dev-project/gems/"
-      echo "    ./ai-agents.sh deploy <dev|prod>   Push code to the target GAS project"
+      echo "    ./ai-agents.sh auth   [dev|prod]    Check/rotate clasp auth + GitHub Secret"
+      echo "    ./ai-agents.sh agent  <AgentName>   Scaffold a new Agent in dev-project/agents/"
+      echo "    ./ai-agents.sh deploy <dev|prod>    Push code to the target GAS project"
       echo ""
       echo "  Examples:"
-      echo "    ./ai-agents.sh auth dev            # Verify dev token (auto-rotates if expired)"
-      echo "    ./ai-agents.sh gem Journal          # Creates dev-project/gems/JournalGem.gs"
-      echo "    ./ai-agents.sh deploy dev           # Push dev code to GAS"
-      echo "    ./ai-agents.sh deploy prod          # Push prod code (requires 'yes-prod')"
+      echo "    ./ai-agents.sh auth dev             # Verify dev token (auto-rotates if expired)"
+      echo "    ./ai-agents.sh agent Logger          # Creates dev-project/agents/LoggerAgent.gs"
+      echo "    ./ai-agents.sh deploy dev            # Push dev code to GAS"
+      echo "    ./ai-agents.sh deploy prod           # Push prod code (requires 'yes-prod')"
       echo ""
       ;;
   esac

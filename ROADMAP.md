@@ -16,11 +16,12 @@
 - [x] updateInventory() with Drive folder scanning
 - [x] testSetup() verified in both environments
 - [x] Dev → prod deploy flow tested and working
-- [x] **Phase 1: CLI upgraded** — `gem` command, docs rewritten for handoff accuracy
+- [x] **Phase 1: CLI upgraded** — `agent` command, docs rewritten for handoff accuracy
 - [x] Journal/slides stubs removed from Router.gs (not yet started)
+- [x] "Gem" terminology replaced with "Agent" across all files
 
 ### Next Up
-- [ ] Phase 2: Dev modular refactor — `gems/` subfolder, LoggerGem
+- [ ] Phase 2: Dev modular refactor — `agents/` subfolder, LoggerAgent
 - [ ] Phase 3: RelocationBridge.py — Drive upload + webhook sync
 - [ ] Set DRIVE_FOLDER_ID Script Property in prod, run updateInventory()
 - [ ] Tag v1.1-stable
@@ -30,7 +31,8 @@
 ## Version History
 
 ### v1.1 (In Progress — 2026-03)
-- CLI `gem` command added (targets `dev-project/gems/`)
+- CLI `agent` command added (targets `dev-project/agents/`)
+- "Gem" terminology replaced with "Agent" across all files
 - `CLAUDE.md` and `README.md` rewritten for accurate AI handoffs
 - Unstarted Phase 4 (JournalGem) removed from active plan
 - Router.gs cleaned of unimplemented stubs

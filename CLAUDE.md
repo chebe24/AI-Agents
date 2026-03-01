@@ -17,7 +17,7 @@ HSK 4 Mandarin in progress. 20+ years GitHub experience. Prefers plain English a
 
 **Gateway-OS** is a modular, webhook-based automation system built on Google Apps Script (GAS).
 It receives POST requests from external tools (n8n, Make, iOS Shortcuts), routes them to
-self-contained "Gem" handlers, and logs results to Google Sheets.
+self-contained Agent handlers, and logs results to Google Sheets.
 
 There are two fully separate GAS projects:
 
@@ -32,9 +32,10 @@ There are two fully separate GAS projects:
 
 ```
 AI-Agents/                          ← Git repo root
-├── ai-agents.sh                    ← Gateway-OS CLI (auth / gem / deploy)
+├── ai-agents.sh                    ← Gateway-OS CLI (auth / agent / deploy)
 ├── deploy.sh                       ← Legacy deploy script (kept for reference)
 ├── CLAUDE.md                       ← This file
+├── AGENTS.md                       ← Multi-agent workflow guide
 ├── README.md                       ← Human-facing project overview
 ├── ROADMAP.md                      ← Version history and next steps
 ├── .gitignore                      ← Excludes .env, .clasprc.json
@@ -44,10 +45,10 @@ AI-Agents/                          ← Git repo root
 │   ├── appsscript.json             ← Manifest (timeZone: America/Chicago)
 │   ├── Config.gs                   ← All constants (ENV, ACCOUNT, SPREADSHEET_ID)
 │   ├── Utilities.gs                ← Shared helpers (checkAccount, logEvent, etc.)
-│   ├── Router.gs                   ← doGet / doPost — routes action → Gem
+│   ├── Router.gs                   ← doGet / doPost — routes action → Agent
 │   ├── Code.gs                     ← Inventory management (updateInventory)
 │   ├── RelocationTracker.gs        ← SHSID onboarding document tracker (in progress)
-│   └── gems/                       ← Gem files live here (auto-created by CLI)
+│   └── agents/                     ← Agent files live here (auto-created by CLI)
 │
 ├── prod-project/                   ← Production GAS project
 │   ├── .clasp.json                 ← Points to PROD script ID
@@ -61,6 +62,7 @@ AI-Agents/                          ← Git repo root
     ├── standards_embed.py          ← RAG engine (shelved, not a priority)
     ├── query_test.py               ← RAG engine (shelved)
     ├── test_env.py                 ← RAG engine (shelved)
+    ├── iam-auditor-notes.md        ← GC-IAM-Auditor planning notes (backlog)
     └── requirements.txt            ← RAG engine (shelved)
 ```
 
@@ -100,7 +102,7 @@ External trigger (iOS Shortcut, n8n, Make, curl)
         └── "fileops"  → _Router_handleFileOps(payload)
 ```
 
-Every Gem returns `buildResponse(code, message, data?)` — a standard JSON envelope.
+Every Agent returns `buildResponse(code, message, data?)` — a standard JSON envelope.
 
 ---
 
@@ -109,13 +111,13 @@ Every Gem returns `buildResponse(code, message, data?)` — a standard JSON enve
 ### ✅ Complete
 - Dev/prod separation deployed and tested
 - Gateway-OS Router pattern live in both environments
-- `ai-agents.sh` CLI: `auth`, `gem`, `deploy` commands
+- `ai-agents.sh` CLI: `auth`, `agent`, `deploy` commands
 - `fileops` webhook route working
 - `updateInventory()` Drive scan function
 - Router.gs cleaned — no unimplemented stubs
 
 ### 🔧 In Progress
-- **Phase 2** — Dev modular refactor (gems/ subfolder, LoggerGem)
+- **Phase 2** — Dev modular refactor (agents/ subfolder, LoggerAgent)
 - **Phase 3** — RelocationBridge.py (Python → Drive upload → Webhook)
 
 ### 🚫 Shelved
@@ -123,6 +125,7 @@ Every Gem returns `buildResponse(code, message, data?)` — a standard JSON enve
 
 ### ⏳ Ideas Backlog
 - Journal Du Matin — daily Google Slides automation
+- GC-IAM-Auditor — monthly GCP service account audit (template in scripts/)
 
 ---
 
@@ -131,7 +134,7 @@ Every Gem returns `buildResponse(code, message, data?)` — a standard JSON enve
 1. **Explain at 5th-grade level** — Cary prefers plain English over jargon
 2. **No-code first** — suggest GUI options before writing code
 3. **Confirm before destructive actions** — never overwrite without asking
-4. **Conventional commits** — format: `type: message` (e.g., `feat: add JournalGem`)
+4. **Conventional commits** — format: `type: message` (e.g., `feat: add LoggerAgent`)
 5. **FERPA** — never include real student names, grades, or IDs anywhere
 6. **Check accounts** — always confirm which Google account is active before clasp operations
 7. **Phase-by-phase** — output one phase at a time, wait for confirmation before the next
@@ -145,7 +148,7 @@ cd ~/Documents/02_Projects/AI-Agents
 
 ./ai-agents.sh auth dev            # Verify dev token, auto-rotate GitHub Secret if expired
 ./ai-agents.sh auth prod           # Same for prod
-./ai-agents.sh gem Journal         # Scaffold dev-project/gems/JournalGem.gs
+./ai-agents.sh agent Journal       # Scaffold dev-project/agents/JournalAgent.gs
 ./ai-agents.sh deploy dev          # Push dev-project/ to GAS
 ./ai-agents.sh deploy prod         # Push prod-project/ (requires typing 'yes-prod')
 ```

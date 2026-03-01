@@ -10,7 +10,7 @@ Baton Rouge, LA. Transitioning to Shanghai High School International Division in
 ## What This Is
 
 Gateway-OS receives POST requests from external tools (iOS Shortcuts, n8n, Make, curl),
-routes them to self-contained automation modules called "Gems," and logs all activity
+routes them to self-contained automation modules called Agents, and logs all activity
 to Google Sheets. Two fully separate GAS projects keep development and production isolated.
 
 ---
@@ -19,17 +19,18 @@ to Google Sheets. Two fully separate GAS projects keep development and productio
 
 ```
 AI-Agents/
-├── ai-agents.sh            ← Gateway-OS CLI (auth / gem / deploy)
+├── ai-agents.sh            ← Gateway-OS CLI (auth / agent / deploy)
 ├── CLAUDE.md               ← AI assistant context file (read this first)
+├── AGENTS.md               ← Multi-agent workflow guide
 ├── ROADMAP.md              ← Version history and next steps
 │
 ├── dev-project/            ← Development environment (cary.hebert@gmail.com)
 │   ├── Config.gs           ← All constants: ENV, SPREADSHEET_ID, etc.
 │   ├── Utilities.gs        ← Shared helpers: checkAccount, logEvent, buildResponse
-│   ├── Router.gs           ← Webhook entry point — routes action → Gem
+│   ├── Router.gs           ← Webhook entry point — routes action → Agent
 │   ├── Code.gs             ← Inventory management (updateInventory)
 │   ├── RelocationTracker.gs← SHSID onboarding document tracker
-│   └── gems/               ← Gem files (auto-scaffolded by CLI)
+│   └── agents/             ← Agent files (auto-scaffolded by CLI)
 │
 ├── prod-project/           ← Production environment (chebert4@ebrschools.org)
 │   ├── Config.gs
@@ -69,14 +70,14 @@ cd ~/Documents/02_Projects/AI-Agents
 If clasp auth has expired, this re-authenticates and automatically rotates
 the corresponding GitHub Secret (`CLASDEV_JSON` for dev, `CLASPRC` for prod).
 
-### Scaffold a New Gem
+### Scaffold a New Agent
 ```bash
-./ai-agents.sh gem <GemName>
+./ai-agents.sh agent <AgentName>
 ```
 Example:
 ```bash
-./ai-agents.sh gem Journal
-# Creates: dev-project/gems/JournalGem.gs
+./ai-agents.sh agent Journal
+# Creates: dev-project/agents/JournalAgent.gs
 ```
 
 ### Deploy
@@ -101,26 +102,26 @@ External tool (iOS Shortcut, n8n, Make, curl)
         └── "fileops"  → _Router_handleFileOps(payload)
 ```
 
-Every Gem returns a standard JSON envelope:
+Every Agent returns a standard JSON envelope:
 ```json
 { "code": 200, "message": "...", "errors": [], "env": "development" }
 ```
 
 ---
 
-## Adding a New Gem (Step by Step)
+## Adding a New Agent (Step by Step)
 
 1. **Scaffold the file:**
    ```bash
-   ./ai-agents.sh gem MyGem
+   ./ai-agents.sh agent MyAgent
    ```
 
-2. **Open** `dev-project/gems/MyGemGem.gs` and add logic inside `_MyGemGem_process(payload)`.
+2. **Open** `dev-project/agents/MyAgentAgent.gs` and add logic inside `_MyAgentAgent_process(payload)`.
 
 3. **Register the route** in `dev-project/Router.gs`:
    ```javascript
-   case "mygem":
-     return MyGemGem_init(payload);
+   case "myagent":
+     return MyAgentAgent_init(payload);
    ```
 
 4. **Deploy and test:**
@@ -156,22 +157,22 @@ cd .. && chmod +x ai-agents.sh
 
 ---
 
-## Current Gem Roster
+## Current Agent Roster
 
-| Gem File                    | Action Key  | Status          |
-|-----------------------------|-------------|-----------------|
-| Router.gs (inline handler)  | `fileops`   | ✅ Live         |
-| RelocationTracker.gs        | `relocation`| 🔧 In Progress  |
+| Agent File                  | Action Key   | Status          |
+|-----------------------------|--------------|-----------------|
+| Router.gs (inline handler)  | `fileops`    | ✅ Live         |
+| RelocationTracker.gs        | `relocation` | 🔧 In Progress  |
 
 ---
 
 ## Current Phase Status
 
-| Phase | Description                      | Status       |
-|-------|----------------------------------|--------------|
-| 1     | CLI Tooling (`ai-agents.sh`)     | ✅ Complete  |
-| 2     | Dev Environment Refactor (gems/) | ⏳ Planned   |
-| 3     | Python RelocationBridge          | ⏳ Planned   |
+| Phase | Description                        | Status       |
+|-------|------------------------------------|--------------|
+| 1     | CLI Tooling (`ai-agents.sh`)       | ✅ Complete  |
+| 2     | Dev Environment Refactor (agents/) | ⏳ Planned   |
+| 3     | Python RelocationBridge            | ⏳ Planned   |
 
 ---
 

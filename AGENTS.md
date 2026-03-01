@@ -168,7 +168,7 @@ cd ~/Documents/02_Projects/AI-Agents
 
 ./ai-agents.sh auth dev            # Check/rotate dev clasp token
 ./ai-agents.sh auth prod           # Check/rotate prod clasp token
-./ai-agents.sh gem <GemName>       # Scaffold new Gem in dev-project/gems/
+./ai-agents.sh agent <AgentName>   # Scaffold new Agent in dev-project/agents/
 ./ai-agents.sh deploy dev          # Push dev to GAS
 ./ai-agents.sh deploy prod         # Push prod to GAS (requires 'yes-prod')
 ```
@@ -180,12 +180,12 @@ cd ~/Documents/02_Projects/AI-Agents
 ```
 Date    : 2026-03-01
 Agent   : Claude
-Work    : Phase 1 complete — CLI gem command, Router.gs cleaned, docs rewritten,
+Work    : Phase 1 complete — CLI agent command, Router.gs cleaned, docs rewritten,
           prod/.clasp.json aligned, iam-auditor-notes.md created, gcloud CLI
-          installed and authenticated, AGENTS.md created
+          installed and authenticated, AGENTS.md created, Gem → Agent rename
 Files   : ai-agents.sh, CLAUDE.md, README.md, ROADMAP.md, dev-project/Router.gs,
           prod-project/Router.gs, prod-project/.clasp.json, scripts/iam-auditor-notes.md,
           AGENTS.md
-Next    : Phase 2 — Dev modular refactor (gems/ subfolder, LoggerGem)
+Next    : Phase 2 — Dev modular refactor (agents/ subfolder, LoggerAgent)
 Commit  : refactor: Phase 1 complete — gems CLI, clean Router, updated docs
 ```

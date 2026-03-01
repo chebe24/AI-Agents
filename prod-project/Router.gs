@@ -1,12 +1,19 @@
 // =============================================================================
-// Router.gs — Gateway-OS Request Router (PRODUCTION)
+// Router.gs — Gateway-OS Request Router
 // =============================================================================
 // ALL incoming webhook traffic enters here.
-// Secured by WEBHOOK_SECRET stored in Script Properties.
+// The Router's only jobs are:
+//   1. Answer doGet health checks
+//   2. Parse and validate the incoming payload
+//   3. Route to the correct Agent based on payload.action
+//   4. Return the Agent's response
+//
+// Business logic does NOT live here. Keep it thin.
 // =============================================================================
 
 /**
  * Health check endpoint.
+ * Test it by visiting the deployment URL in a browser.
  */
 function doGet(e) {
   return buildResponse(200, `Gateway-OS [${ENV}] is online.`);
@@ -14,12 +21,12 @@ function doGet(e) {
 
 /**
  * Main webhook entry point.
+ * All POST requests from n8n, Make, or any external tool arrive here.
  *
  * Expected payload shape:
  * {
- *   "secret": "<WEBHOOK_SECRET>",
- *   "action": "fileops" | <GemName>,
- *   ...
+ *   "action":  "fileops" | <AgentName>,
+ *   ...        (any other fields the Agent needs)
  * }
  */
 function doPost(e) {
@@ -30,12 +37,10 @@ function doPost(e) {
       hasBody:     e?.postData ? true : false
     });
 
-    // ── 1. Guard: require a request body ──────────────────────────────────
     if (!e?.postData?.contents) {
       return buildResponse(400, "Empty request body.");
     }
 
-    // ── 2. Parse JSON ──────────────────────────────────────────────────────
     let payload;
     try {
       payload = JSON.parse(e.postData.contents);
@@ -43,14 +48,6 @@ function doPost(e) {
       return buildResponse(400, "Invalid JSON: " + parseErr.message);
     }
 
-    // ── 3. Verify webhook secret ───────────────────────────────────────────
-    const expectedSecret = getScriptProperty('WEBHOOK_SECRET');
-    if (expectedSecret && payload.secret !== expectedSecret) {
-      logEvent('AUTH_FAILURE', { reason: 'Invalid webhook secret' });
-      return buildResponse(403, "Unauthorized.");
-    }
-
-    // ── 4. Require an action field ─────────────────────────────────────────
     const action = (payload.action || "").toLowerCase().trim();
     if (!action) {
       return buildResponse(400, "Missing required field: action");
@@ -58,20 +55,19 @@ function doPost(e) {
 
     logEvent('ROUTING', { action });
 
-    // ── 5. Route to the correct Gem ────────────────────────────────────────
     switch (action) {
 
       case "fileops":
         return _Router_handleFileOps(payload);
 
-      // ── Register new Gems below this line ─────────────────────────────
-      // case "mygemname":
-      //   return MyGemName_init(payload);
+      // ── Register new Agents below this line ───────────────────────────
+      // case "agentname":
+      //   return AgentName_init(payload);
       // ──────────────────────────────────────────────────────────────────
 
       default:
         logEvent('UNKNOWN_ACTION', { action });
-        return buildResponse(400, `Unknown action: "${action}".`);
+        return buildResponse(400, `Unknown action: "${action}". Check Router.gs for registered routes.`);
     }
 
   } catch (err) {
@@ -79,10 +75,6 @@ function doPost(e) {
     return buildResponse(500, "Server error: " + err.message);
   }
 }
-
-// =============================================================================
-// INLINE HANDLER — File Ops
-// =============================================================================
 
 function _Router_handleFileOps(payload) {
   const fileName    = payload.fileName    || "";

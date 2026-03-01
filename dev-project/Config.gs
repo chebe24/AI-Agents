@@ -17,3 +17,6 @@ const VALID_ANNOTATIONS = ["Doc", "Pres", "Wks", "Assess", "Guide", "Annot"];
 
 // Inventory settings
 const DEPRECATED_DAYS = 30;
+
+// Logging
+const LOG_SHEET_NAME = "System Log";

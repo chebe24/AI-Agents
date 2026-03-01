@@ -5,8 +5,8 @@
 // The Router's only jobs are:
 //   1. Answer doGet health checks
 //   2. Parse and validate the incoming payload
-//   3. Route to the correct Gem based on payload.action
-//   4. Return the Gem's response
+//   3. Route to the correct Agent based on payload.action
+//   4. Return the Agent's response
 //
 // Business logic does NOT live here. Keep it thin.
 // =============================================================================
@@ -25,8 +25,8 @@ function doGet(e) {
  *
  * Expected payload shape:
  * {
- *   "action":  "fileops" | <GemName>,
- *   ...        (any other fields the Gem needs)
+ *   "action":  "fileops" | <AgentName>,
+ *   ...        (any other fields the Agent needs)
  * }
  */
 function doPost(e) {
@@ -58,15 +58,18 @@ function doPost(e) {
 
     logEvent('ROUTING', { action });
 
-    // ── 4. Route to the correct Gem ────────────────────────────────────────
+    // ── 4. Route to the correct Agent ──────────────────────────────────────
     switch (action) {
 
       case "fileops":
         return _Router_handleFileOps(payload);
 
-      // ── Register new Gems below this line ─────────────────────────────
-      // case "mygemname":
-      //   return MyGemName_init(payload);
+      // ── Register new Agents below this line ───────────────────────────
+      case "log":
+        return LoggerAgent_init(payload);
+
+      // case "agentname":
+      //   return AgentName_init(payload);
       // ──────────────────────────────────────────────────────────────────
 
       default:
