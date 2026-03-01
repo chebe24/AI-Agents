@@ -1,0 +1,163 @@
+# ============================================================
+# Gateway-OS Pattern Registry
+# Version: 6.0
+# Maintained by: chebe24
+# Repository: AI-Agents
+# Last Updated: 2026-03-01
+# ============================================================
+# NAMING CONVENTION: ##-####-##-##_SubjectCode_FileType_Description.extension
+# Rules:
+#   - No special characters, accents, dashes, or underscores in Description
+#   - Exception: LP filetype may end with L##-## pattern
+#   - Exception: Annot filetype may end with L## pattern
+#   - Exception: Comm_News description is always fixed: HebertA113
+# ============================================================
+
+metadata:
+  version: "6.0"
+  convention: "##-####-##-##_SubjectCode_FileType_Description.extension"
+  deprecated_versions:
+    - "5.0"
+  maintainer: "chebe24"
+  repository: "AI-Agents"
+
+# ------------------------------------------------------------
+# DATE PREFIX (shared by all patterns)
+# ------------------------------------------------------------
+date_prefix:
+  pattern: "\\d{2}-\\d{4}-\\d{2}-\\d{2}"
+  example: "01-2026-08-15"
+  notes: "Format is ##-####-##-##. No W or Wk prefix."
+
+# ------------------------------------------------------------
+# SUBJECT CODES
+# ------------------------------------------------------------
+subject_codes:
+  MATH:
+    label: "Mathematics"
+    curriculum: "Eureka Math²"
+  Sci:
+    label: "Science"
+    curriculum: "Amplify Science"
+  SS:
+    label: "Social Studies"
+    curriculum: "Gallopade"
+  Fren:
+    label: "French Immersion"
+  Comm:
+    label: "Communications / Newsletter"
+
+# ------------------------------------------------------------
+# FILE TYPE REGISTRY
+# ------------------------------------------------------------
+file_types:
+  LP:
+    label: "Lesson Plan"
+  Annot:
+    label: "Annotated Document"
+  News:
+    label: "Newsletter"
+  PDF:
+    label: "Generic PDF"
+
+# ------------------------------------------------------------
+# PATTERN REGISTRY
+# ------------------------------------------------------------
+patterns:
+
+  # --- GENERAL ---
+  general:
+    label: "General Files (non-LP)"
+    subject: "Any"
+    filetype: "Any (except LP, Annot, News)"
+    description_pattern: "[A-Za-z0-9]+"
+    description_notes: "Plain alphanumeric only. No special characters."
+    full_regex: "^\\d{2}-\\d{4}-\\d{2}-\\d{2}_[A-Za-z0-9]+_[A-Za-z0-9]+_[A-Za-z0-9]+\\.[a-z]{2,4}$"
+    example: "01-2026-08-15_Sci_PDF_ProjectNotes.pdf"
+
+  general_lp:
+    label: "General Lesson Plan (non-subject-specific)"
+    subject: "Any"
+    filetype: "LP"
+    description_pattern: "[A-Za-z0-9]+L\\d{2}-\\d{2}"
+    description_notes: "Alphanumeric topic name ending with L##-## lesson code."
+    full_regex: "^\\d{2}-\\d{4}-\\d{2}-\\d{2}_[A-Za-z0-9]+_LP_[A-Za-z0-9]+L\\d{2}-\\d{2}\\.[a-z]{2,4}$"
+    example: "01-2026-08-15_ELA_LP_ReadingL03-02.pdf"
+
+  # --- MATH ---
+  math_lp:
+    label: "Math Lesson Plan"
+    subject: "MATH"
+    filetype: "LP"
+    description_pattern: "M\\dT(LA|[A-F])L\\d{2}-\\d{2}"
+    description_notes: >
+      M = Module, # = module number, T = Topic marker,
+      Letter = A-F or LA (Topic letter), L##-## = Lesson range.
+    full_regex: "^\\d{2}-\\d{4}-\\d{2}-\\d{2}_MATH_LP_M\\dT(LA|[A-F])L\\d{2}-\\d{2}\\.[a-z]{2,4}$"
+    example: "01-2026-08-15_MATH_LP_M2TAL03-02.pdf"
+
+  math_annot:
+    label: "Math Annotated Lesson"
+    subject: "MATH"
+    filetype: "Annot"
+    description_pattern: "M\\dT(LA|[A-F])L\\d{2}"
+    description_notes: >
+      Same as math_lp but ends with single lesson number L##.
+      No dash-range at the end.
+    full_regex: "^\\d{2}-\\d{4}-\\d{2}-\\d{2}_MATH_Annot_M\\dT(LA|[A-F])L\\d{2}\\.[a-z]{2,4}$"
+    example: "01-2026-08-15_MATH_Annot_M2TAL03.pdf"
+
+  # --- SCIENCE ---
+  sci_lp:
+    label: "Science Lesson Plan"
+    subject: "Sci"
+    filetype: "LP"
+    description_pattern: "U\\dC\\dL\\d{2}-\\d{2}"
+    description_notes: "U = Unit, C = Chapter, L##-## = Lesson range."
+    full_regex: "^\\d{2}-\\d{4}-\\d{2}-\\d{2}_Sci_LP_U\\dC\\dL\\d{2}-\\d{2}\\.[a-z]{2,4}$"
+    example: "01-2026-08-15_Sci_LP_U2C3L04-01.pdf"
+
+  # --- SOCIAL STUDIES ---
+  ss_lp:
+    label: "Social Studies Lesson Plan"
+    subject: "SS"
+    filetype: "LP"
+    description_pattern: "U\\dC\\dL\\d{2}-\\d{2}"
+    description_notes: "Identical structure to Sci_LP."
+    full_regex: "^\\d{2}-\\d{4}-\\d{2}-\\d{2}_SS_LP_U\\dC\\dL\\d{2}-\\d{2}\\.[a-z]{2,4}$"
+    example: "01-2026-08-15_SS_LP_U1C2L03-01.pdf"
+
+  # --- FRENCH ---
+  fren_lp:
+    label: "French Immersion Lesson Plan"
+    subject: "Fren"
+    filetype: "LP"
+    description_pattern: "[A-Za-z0-9]+"
+    description_notes: >
+      Free alphanumeric topic name. No special characters.
+      Topic names are cultural or thematic (e.g. Noel1, MardiGras2, Nombres0A10).
+    full_regex: "^\\d{2}-\\d{4}-\\d{2}-\\d{2}_Fren_LP_[A-Za-z0-9]+\\.[a-z]{2,4}$"
+    example: "01-2026-08-15_Fren_LP_MardiGras2.pdf"
+
+  # --- COMMUNICATIONS ---
+  comm_news:
+    label: "Weekly Newsletter"
+    subject: "Comm"
+    filetype: "News"
+    description_pattern: "HebertA113"
+    description_notes: "Fixed description. Only the date prefix changes per issue."
+    full_regex: "^\\d{2}-\\d{4}-\\d{2}-\\d{2}_Comm_News_HebertA113\\.[a-z]{2,4}$"
+    example: "01-2026-08-15_Comm_News_HebertA113.pdf"
+
+# ------------------------------------------------------------
+# DEPRECATION FLAGS
+# ------------------------------------------------------------
+deprecation:
+  triggers:
+    - "Missing date prefix"
+    - "Uses W## or Wk##-YYMMDD format (v5)"
+    - "Contains spaces in filename"
+    - "Contains accents or special characters in description"
+    - "Uses dashes or underscores inside description field"
+    - "Missing SubjectCode field"
+  action: "Move to 03_History archive and log in Command Hub"
