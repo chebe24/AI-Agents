@@ -1,0 +1,31 @@
+system_identity:
+  agent_role: "Lifecycle & Migration Spoke"
+  parent_hub: "AI_Agents_Command_Hub (chebert4@ebrschools.org)"
+  repository: "AI-Agents"
+
+governance:
+  naming_convention: "##-####-##-##_SubjectCode_FileType_Description.extension"
+  pattern_registry: "pattern-registry.yaml"
+  deprecated_versions:
+    - "5.0"
+  subject_codes: [MATH, Sci, SS, Fren, Comm]
+
+storage_policy:
+  work: "chebert4@ebrschools.org Google Drive"
+  code: "GitHub chebe24/AI-Agents"
+  local: "~/Documents/02_Projects/Proj_AI-Agents"
+
+automation_hooks:
+  hazel_trigger: "Detect V6 pattern mismatch in data/raw"
+  transnomio_preset: "V6-Standard-Rename"
+
+active_mission:
+  project: "AI-Logbook"
+  priority: "High"
+  phases:
+    - Phase 1: "Infrastructure and YAML Logic"
+    - Phase 2: "Command Hub Sheet Setup"
+    - Phase 3: "Secure Property Mapping"
+    - Phase 4: "LoggerAgent Deployment"
+    - Phase 5: "Local Automation Link"
+    - Phase 6: "GitHub Sync and Verification"
