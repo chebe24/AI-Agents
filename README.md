@@ -9,10 +9,9 @@ Baton Rouge, LA. Transitioning to Shanghai High School International Division in
 
 ## What This Is
 
-Gateway-OS is a structured system for building and deploying Google Apps Script automations.
-It separates development from production, routes incoming webhook requests to modular Agent
-files, and provides a CLI for scaffolding, deploying, and managing the whole system from
-your terminal.
+Gateway-OS receives POST requests from external tools (iOS Shortcuts, n8n, Make, curl),
+routes them to self-contained automation modules called "Gems," and logs all activity
+to Google Sheets. Two fully separate GAS projects keep development and production isolated.
 
 ---
 
@@ -20,74 +19,69 @@ your terminal.
 
 ```
 AI-Agents/
-├── ai-agents.sh            # Gateway-OS CLI — your main tool
-├── CLAUDE.md               # AI assistant context file
-├── ROADMAP.md              # Version history and future plans
-├── README.md               # This file
+├── ai-agents.sh            ← Gateway-OS CLI (auth / gem / deploy)
+├── CLAUDE.md               ← AI assistant context file (read this first)
+├── ROADMAP.md              ← Version history and next steps
 │
-├── dev-project/            # Development environment (cary.hebert@gmail.com)
-│   ├── Config.gs           # All constants and environment settings
-│   ├── Utilities.gs        # Shared helper functions
-│   ├── Router.gs           # Webhook entry point — routes actions to Agents
-│   ├── Code.gs             # Inventory management logic
-│   ├── RelocationTracker.gs  # SHSID onboarding document tracker
-│   ├── agents/             # Agent files live here (scaffolded by CLI)
-│   ├── .clasp.json         # Clasp config pointing to DEV GAS project
-│   └── appsscript.json     # Apps Script manifest
+├── dev-project/            ← Development environment (cary.hebert@gmail.com)
+│   ├── Config.gs           ← All constants: ENV, SPREADSHEET_ID, etc.
+│   ├── Utilities.gs        ← Shared helpers: checkAccount, logEvent, buildResponse
+│   ├── Router.gs           ← Webhook entry point — routes action → Gem
+│   ├── Code.gs             ← Inventory management (updateInventory)
+│   ├── RelocationTracker.gs← SHSID onboarding document tracker
+│   └── gems/               ← Gem files (auto-scaffolded by CLI)
 │
-├── prod-project/           # Production environment (chebert4@ebrschools.org)
-│   ├── Code.gs             # Live production code
-│   ├── .clasp.json         # Clasp config pointing to PROD GAS project
-│   └── appsscript.json     # Apps Script manifest
+├── prod-project/           ← Production environment (chebert4@ebrschools.org)
+│   ├── Config.gs
+│   ├── Utilities.gs
+│   ├── Router.gs
+│   └── Code.gs
 │
-└── scripts/                # Python utilities (RAG engine, standards embedding)
-    ├── standards_embed.py
-    ├── query_test.py
-    └── requirements.txt
+└── scripts/                ← Python utilities (RAG / standards embedding)
 ```
 
 ---
 
-## Accounts
+## Accounts & Environments
 
 | Environment | Account                  | Google Sheet              |
 |-------------|--------------------------|---------------------------|
 | Dev         | cary.hebert@gmail.com    | AI Agents Command Hub     |
 | Prod        | chebert4@ebrschools.org  | Agents-Production-Log     |
 
+**Never mix these.** `checkAccount()` in Utilities.gs will throw an error if the wrong account is active.
+
 ---
 
 ## CLI Reference — `ai-agents.sh`
 
-All commands are run from the project root:
+All commands run from the project root:
+
 ```bash
 cd ~/Documents/02_Projects/AI-Agents
 ```
 
 ### Check / Rotate Authentication
 ```bash
-./ai-agents.sh auth dev    # Check dev account (cary.hebert@gmail.com)
-./ai-agents.sh auth prod   # Check prod account (chebert4@ebrschools.org)
+./ai-agents.sh auth dev    # Check dev (cary.hebert@gmail.com)
+./ai-agents.sh auth prod   # Check prod (chebert4@ebrschools.org)
 ```
 If clasp auth has expired, this re-authenticates and automatically rotates
-the GitHub Secret (`CLASDEV_JSON` for dev, `CLASPRC` for prod).
+the corresponding GitHub Secret (`CLASDEV_JSON` for dev, `CLASPRC` for prod).
 
-### Scaffold a New Agent
+### Scaffold a New Gem
 ```bash
-./ai-agents.sh agent <Name>
+./ai-agents.sh gem <GemName>
 ```
 Example:
 ```bash
-./ai-agents.sh agent Journal
-# Creates: dev-project/agents/JournalAgent.gs
+./ai-agents.sh gem Journal
+# Creates: dev-project/gems/JournalGem.gs
 ```
-Every Agent is scaffolded with a standard JSDoc header, an `init()` entry point,
-and a private `_process()` stub. After creation, register it in `Router.gs`
-(see Adding a New Agent below).
 
 ### Deploy
 ```bash
-./ai-agents.sh deploy dev    # Push dev-project/ to GAS (no confirmation needed)
+./ai-agents.sh deploy dev    # Push dev-project/ to GAS (immediate)
 ./ai-agents.sh deploy prod   # Push prod-project/ to GAS (requires typing 'yes-prod')
 ```
 
@@ -96,53 +90,45 @@ and a private `_process()` stub. After creation, register it in `Router.gs`
 ## Architecture — How a Request Flows
 
 ```
-External tool (n8n, Make, iOS Shortcut)
-        │
+External tool (iOS Shortcut, n8n, Make, curl)
+        │  POST {"action": "fileops", "fileName": "...", ...}
         ▼
-   doPost() in Router.gs
+  Router.gs → doPost()
         │
-        ├── Parses JSON payload
+        ├── Parses JSON body
         ├── Reads payload.action
         │
-        ├── action === "fileops"     → _Router_handleFileOps()
-        ├── action === "relocation"  → RelocationTracker (planned)
-        └── action === "journal"     → JournalAgent_init()  ← example
+        └── "fileops"  → _Router_handleFileOps(payload)
 ```
 
-Every incoming POST request must include an `action` field:
+Every Gem returns a standard JSON envelope:
 ```json
-{
-  "action": "fileops",
-  "fileName": "2026-02-25_Math_Doc_Lesson01.pdf",
-  "subjectCode": "Math",
-  "status": "uploaded"
-}
+{ "code": 200, "message": "...", "errors": [], "env": "development" }
 ```
 
 ---
 
-## Adding a New Agent (Step by Step)
+## Adding a New Gem (Step by Step)
 
 1. **Scaffold the file:**
    ```bash
-   ./ai-agents.sh agent Journal
+   ./ai-agents.sh gem MyGem
    ```
 
-2. **Open the generated file** `dev-project/agents/JournalAgent.gs`
-   and add your logic inside `_JournalAgent_process(payload)`.
+2. **Open** `dev-project/gems/MyGemGem.gs` and add logic inside `_MyGemGem_process(payload)`.
 
 3. **Register the route** in `dev-project/Router.gs`:
    ```javascript
-   case "journal":
-     return JournalAgent_init(payload);
+   case "mygem":
+     return MyGemGem_init(payload);
    ```
 
-4. **Deploy to dev and test:**
+4. **Deploy and test:**
    ```bash
    ./ai-agents.sh deploy dev
    ```
 
-5. **When ready, deploy to prod:**
+5. **When ready:**
    ```bash
    ./ai-agents.sh deploy prod
    ```
@@ -152,22 +138,10 @@ Every incoming POST request must include an `action` field:
 ## One-Time Setup (New Machine)
 
 ```bash
-# 1. Install clasp globally
 npm install -g @google/clasp
-
-# 2. Authenticate dev account
-cd dev-project
-clasp login --no-localhost
-
-# 3. Authenticate prod account
-cd ../prod-project
-clasp login --no-localhost
-
-# 4. Make CLI executable
-cd ..
-chmod +x ai-agents.sh
-
-# 5. Verify
+cd dev-project && clasp login --no-localhost
+cd ../prod-project && clasp login --no-localhost
+cd .. && chmod +x ai-agents.sh
 ./ai-agents.sh help
 ```
 
@@ -175,21 +149,30 @@ chmod +x ai-agents.sh
 
 ## Security
 
-- `.env` is excluded from Git — never commit API keys
-- `.clasprc.json` is excluded — clasp OAuth tokens
+- `.env` and `.clasprc.json` are excluded from Git
 - `WEBHOOK_SECRET` is stored in GAS Script Properties, not in code
-- `checkAccount()` in Utilities.gs guards against wrong-account execution
+- `checkAccount()` guards against wrong-account execution
 - Production deployment requires typing `yes-prod` to confirm
 
 ---
 
-## Current Agent Roster
+## Current Gem Roster
 
-| Agent File              | Action Key    | Status      |
-|-------------------------|---------------|-------------|
-| Router.gs (inline)      | `fileops`     | ✅ Live      |
-| RelocationTracker.gs    | `relocation`  | 🔧 In Progress |
+| Gem File                    | Action Key  | Status          |
+|-----------------------------|-------------|-----------------|
+| Router.gs (inline handler)  | `fileops`   | ✅ Live         |
+| RelocationTracker.gs        | `relocation`| 🔧 In Progress  |
 
 ---
 
-*Last updated: February 2026 — Gateway-OS v1.0*
+## Current Phase Status
+
+| Phase | Description                      | Status       |
+|-------|----------------------------------|--------------|
+| 1     | CLI Tooling (`ai-agents.sh`)     | ✅ Complete  |
+| 2     | Dev Environment Refactor (gems/) | ⏳ Planned   |
+| 3     | Python RelocationBridge          | ⏳ Planned   |
+
+---
+
+*Last updated: March 2026 — Gateway-OS v1.1*

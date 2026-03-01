@@ -1,146 +1,169 @@
-# CLAUDE.md — AI-Agents Project Context
+# CLAUDE.md — Gateway-OS AI Assistant Context
 
-> **For AI assistants (Claude, Gemini, etc.):** Read this first. It tells you exactly what this project is, how it's structured, and how to help without breaking things.
+> **For AI assistants (Claude, Gemini, etc.):** Read this first.
+> It tells you exactly what this project is, its current state, and how to help without breaking anything.
 
 ---
 
 ## Who Built This
 
-**Cary Hebert** — 1st Grade French Immersion teacher, BR FLAIM International School, Baton Rouge, LA (EBRPSS).  
-Transitioning to Shanghai High School International Division, August 2026.  
-HSK 4 Mandarin in progress. 20+ years GitHub experience. Prefers no-code solutions.
+**Cary Hebert** — 1st Grade French Immersion teacher, BR FLAIM International School, Baton Rouge, LA (EBRPSS).
+Transitioning to Shanghai High School International Division, **August 2026**.
+HSK 4 Mandarin in progress. 20+ years GitHub experience. Prefers plain English and no-code solutions.
 
 ---
 
 ## What This Project Is
 
-A dual-account Google Apps Script + iOS Shortcuts automation system with:
-1. **Apps Script Web Apps** — receive webhook calls from iOS Shortcuts, log to Google Sheets
-2. **Trilingual RAG Engine** — semantic search over educational standards (English/French/Mandarin) using Google's free embedding API + Chroma vector DB
-3. **Deploy scripts** — bash automation for pushing to dev vs. prod
+**Gateway-OS** is a modular, webhook-based automation system built on Google Apps Script (GAS).
+It receives POST requests from external tools (n8n, Make, iOS Shortcuts), routes them to
+self-contained "Gem" handlers, and logs results to Google Sheets.
+
+There are two fully separate GAS projects:
+
+| Environment | Account                  | Google Sheet          | Sheet ID |
+|-------------|--------------------------|-----------------------|----------|
+| Dev         | cary.hebert@gmail.com    | AI Agents Command Hub | `1KVHxSLUSk1LpySX2K1ITRXqxJKV4h-dpnd_Ia4lV6_E` |
+| Prod        | chebert4@ebrschools.org  | Agents-Production-Log | `1qEZUBf4A1djNF5CstRxJa2UQbQqCnIZqavSF8mkKUpU` |
 
 ---
 
-## Two Google Accounts
+## Actual Folder Structure (as of March 2026)
 
-| Role | Email | Use |
-|------|-------|-----|
-| Dev | cary.hebert@gmail.com | Coding, testing, personal |
-| Prod | chebert4@ebrschools.org | Live classroom, school use |
+```
+AI-Agents/                          ← Git repo root
+├── ai-agents.sh                    ← Gateway-OS CLI (auth / gem / deploy)
+├── deploy.sh                       ← Legacy deploy script (kept for reference)
+├── CLAUDE.md                       ← This file
+├── README.md                       ← Human-facing project overview
+├── ROADMAP.md                      ← Version history and next steps
+├── .gitignore                      ← Excludes .env, .clasprc.json
+│
+├── dev-project/                    ← Development GAS project
+│   ├── .clasp.json                 ← Points to DEV script ID
+│   ├── appsscript.json             ← Manifest (timeZone: America/Chicago)
+│   ├── Config.gs                   ← All constants (ENV, ACCOUNT, SPREADSHEET_ID)
+│   ├── Utilities.gs                ← Shared helpers (checkAccount, logEvent, etc.)
+│   ├── Router.gs                   ← doGet / doPost — routes action → Gem
+│   ├── Code.gs                     ← Inventory management (updateInventory)
+│   ├── RelocationTracker.gs        ← SHSID onboarding document tracker (in progress)
+│   └── gems/                       ← Gem files live here (auto-created by CLI)
+│
+├── prod-project/                   ← Production GAS project
+│   ├── .clasp.json                 ← Points to PROD script ID
+│   ├── appsscript.json
+│   ├── Config.gs
+│   ├── Utilities.gs
+│   ├── Router.gs
+│   └── Code.gs
+│
+└── scripts/                        ← SHELVED — do not modify or build on these
+    ├── standards_embed.py          ← RAG engine (shelved, not a priority)
+    ├── query_test.py               ← RAG engine (shelved)
+    ├── test_env.py                 ← RAG engine (shelved)
+    └── requirements.txt            ← RAG engine (shelved)
+```
 
-**IMPORTANT:** Never mix these. Always verify with `checkAccount()` before running anything in production.
+**Important:** There is no `scripts/Code.gs`. GAS files live inside `dev-project/` and `prod-project/` only.
+
+> **Note on `scripts/`:** The Python RAG engine (Chroma vector DB, trilingual standards embedding)
+> has been shelved and is not a current priority. Do not suggest building on or extending these files.
+> They are kept for potential future reference only.
 
 ---
 
-## Folder Structure
+## Script IDs & Web App URLs
+
+| Env  | GAS Script ID | Web App URL |
+|------|---------------|-------------|
+| Dev  | `1o_3FUWvqXzFYeJOParcxBYcAacZy5Ig3MbgbTAX5TCixKrrchW7IBOBW` | https://script.google.com/macros/s/AKfycbxC3q2qNHivWzRpvLZdWnH8r5uuDTUTPn-NtPG_3g2lC6Gy1ErDiDZoGzJ_LSIp-_Z6mQ/exec |
+| Prod | `1B91NVhYy9SMt2ZuaUyL_c1Z0Woz1HkD8kjGGcFZ9XFL-jIA115iup0lu` | https://script.google.com/macros/s/AKfycbxbWWHUgQR6GAH2W4GVqZSOAwrAhJQVq-W9egIZV6mMH2-VFawj4KYj0INso1MtYTHw/exec |
+
+GitHub Secrets:
+- `CLASDEV_JSON` — clasp OAuth token for dev account
+- `CLASPRC` — clasp OAuth token for prod account
+
+---
+
+## Architecture — How a Request Flows
 
 ```
-AI-Agents/
-├── README.md               # Project overview
-├── ROADMAP.md              # Version history
-├── CLAUDE.md               # This file
-├── .gitignore              # Excludes .env, .clasprc.json, db/ exports
-├── appsscript.json         # Apps Script manifest (timeZone: America/Chicago)
-├── clasp-setup.sh          # Run once: creates dev + prod clasp projects
-├── deploy.sh               # ./deploy.sh dev OR ./deploy.sh prod
-├── scripts/
-│   └── Code.gs             # Main Apps Script (dev config)
-├── Dev/                    # Google Cloud security notes
-├── standards_raw/          # Source PDFs/CSVs for embedding
-├── standards_embed.py      # Embedding script → Chroma DB
-├── query_test.py           # Test vector search
-├── test_env.py             # Verify GOOGLE_API_KEY in .env
-├── process_math_lp.py      # Eureka Math² lesson plan processor
-└── requirements.txt        # Python deps
+External trigger (iOS Shortcut, n8n, Make, curl)
+        │  POST { "action": "fileops", ... }
+        ▼
+  Router.gs → doPost()
+        │
+        ├── Validates secret (prod only)
+        ├── Parses JSON payload
+        ├── Reads payload.action
+        │
+        └── "fileops"  → _Router_handleFileOps(payload)
 ```
+
+Every Gem returns `buildResponse(code, message, data?)` — a standard JSON envelope.
+
+---
+
+## Current Status (March 2026)
+
+### ✅ Complete
+- Dev/prod separation deployed and tested
+- Gateway-OS Router pattern live in both environments
+- `ai-agents.sh` CLI: `auth`, `gem`, `deploy` commands
+- `fileops` webhook route working
+- `updateInventory()` Drive scan function
+- Router.gs cleaned — no unimplemented stubs
+
+### 🔧 In Progress
+- **Phase 2** — Dev modular refactor (gems/ subfolder, LoggerGem)
+- **Phase 3** — RelocationBridge.py (Python → Drive upload → Webhook)
+
+### 🚫 Shelved
+- **RAG Engine** — Python / Chroma vector DB / trilingual standards embedding (not a priority)
+
+### ⏳ Ideas Backlog
+- Journal Du Matin — daily Google Slides automation
 
 ---
 
 ## Ground Rules for AI Assistants
 
-1. **Explain at 5th-grade level** — Cary is technically literate but prefers plain English
-2. **No-code first** — Suggest GUI/no-code options before writing scripts
-3. **Confirm before deleting or overwriting** — Always ask before `rm` or `cp` that would overwrite
-4. **Conventional commits** — Use format: `type: message` (e.g., `deploy: push dev 2026-02-22`)
-5. **FERPA matters** — Never include real student names, grades, or IDs in code or commits
-6. **Step-by-step** — Break multi-step tasks into numbered steps with explanation for each
-7. **Check accounts** — Always confirm which Google account is active before clasp operations
+1. **Explain at 5th-grade level** — Cary prefers plain English over jargon
+2. **No-code first** — suggest GUI options before writing code
+3. **Confirm before destructive actions** — never overwrite without asking
+4. **Conventional commits** — format: `type: message` (e.g., `feat: add JournalGem`)
+5. **FERPA** — never include real student names, grades, or IDs anywhere
+6. **Check accounts** — always confirm which Google account is active before clasp operations
+7. **Phase-by-phase** — output one phase at a time, wait for confirmation before the next
 
 ---
 
-## Spreadsheets
-
-| Environment | Name | ID |
-|-------------|------|----|
-| Dev | AI Agents Development Logs | `1-n1vERWG9X0eAi838N18w3X69rRX3YtOnJ6DDeYnhy` |
-| Prod | AI Agents Command Hub | `1qEZUBf4A1djNF5CstRxJa2UQbQqCnIZqavSF8mkKUpU` |
-
----
-
-## Webapp URLs
-
-| Environment | URL |
-|-------------|-----|
-| Dev | https://script.google.com/macros/s/AKfycbxC3q2qNHivWzRpvLZdWnH8r5uuDTUTPn-NtPG_3g2lC6Gy1ErDiDZoGzJ_LSIp-_Z6mQ/exec |
-| Prod | https://script.google.com/macros/s/AKfycbxbWWHUgQR6GAH2W4GVqZSOAwrAhJQVq-W9egIZV6mMH2-VFawj4KYj0INso1MtYTHw/exec |
-
----
-
-## Script IDs
-
-| Environment | Script ID | Account |
-|-------------|-----------|--------|
-| Dev | `1o_3FUWvqXzFYeJOParcxBYcAacZy5Ig3MbgbTAX5TCixKrrchW7IBOBW` | cary.hebert@gmail.com |
-| Prod | `1B91NVhYy9SMt2ZuaUyL_c1Z0Woz1HkD8kjGGcFZ9XFL-jIA115iup0lu` | chebert4@ebrschools.org |
-
----
-
-## Current Status (February 2026)
-
-- ✅ Repo structure cleaned up
-- ✅ Dev `Code.gs` with `checkAccount()`, `doGet()`, `doPost()`, logging to Sheet
-- ✅ `appsscript.json` configured for Chicago timezone
-- ✅ RAG engine scripts in place
-- ⏳ `clasp login` for both accounts pending
-- ⏳ First live deployment to dev pending
-- ⏳ AI_Agents_Inventory Google Sheet not yet created
-
----
-
-## How to Deploy (Quick Reference)
+## CLI Quick Reference
 
 ```bash
-# First time only
-./clasp-setup.sh
+cd ~/Documents/02_Projects/AI-Agents
 
-# Every time you make changes
-./deploy.sh dev       # Safe: pushes to dev Apps Script
-./deploy.sh prod      # Asks for confirmation first
-
-# Then commit
-git add .
-git commit -m "deploy: update dev 2026-02-22"
-git push
+./ai-agents.sh auth dev            # Verify dev token, auto-rotate GitHub Secret if expired
+./ai-agents.sh auth prod           # Same for prod
+./ai-agents.sh gem Journal         # Scaffold dev-project/gems/JournalGem.gs
+./ai-agents.sh deploy dev          # Push dev-project/ to GAS
+./ai-agents.sh deploy prod         # Push prod-project/ (requires typing 'yes-prod')
 ```
 
 ---
 
-## Python RAG Engine (Quick Reference)
+## Future Addition: Trilingual RAG Engine
 
-```bash
-pip install -r requirements.txt
-echo "GOOGLE_API_KEY=your_key" > .env
-python test_env.py            # Verify key works
-# Drop files in standards_raw/
-python standards_embed.py     # Build vector DB
-python query_test.py          # Test queries
-```
+> **Status: Not started. Do not implement unless Cary explicitly asks.**
 
----
+A planned semantic search engine over educational standards in English, French, and Mandarin.
+Files already exist in `scripts/` but are not connected to Gateway-OS yet.
 
-## Success Criteria for v1.0
+| File | Purpose |
+|------|---------|
+| `scripts/standards_embed.py` | Embeds standards PDFs/CSVs into a Chroma vector DB |
+| `scripts/query_test.py` | Tests semantic queries against the DB |
+| `scripts/test_env.py` | Verifies `GOOGLE_API_KEY` is set in `.env` |
+| `standards_raw/` | Source PDFs/CSVs to be embedded |
 
-- `curl [prod-deploy-url]` returns `{"status":"ok","environment":"production"}`
-- Dev and prod Apps Scripts are separate projects in separate Google accounts
-- At least one iOS Shortcut can POST to prod URL and get a response
-- Git history is clean with conventional commits
+When active, it will use Google's free embedding API and requires a `GOOGLE_API_KEY` in a local `.env` file (never committed to Git).

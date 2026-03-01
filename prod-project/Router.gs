@@ -18,7 +18,7 @@ function doGet(e) {
  * Expected payload shape:
  * {
  *   "secret": "<WEBHOOK_SECRET>",
- *   "action": "fileops" | <AgentName>,
+ *   "action": "fileops" | <GemName>,
  *   ...
  * }
  */
@@ -58,15 +58,15 @@ function doPost(e) {
 
     logEvent('ROUTING', { action });
 
-    // ── 5. Route to the correct Agent ──────────────────────────────────────
+    // ── 5. Route to the correct Gem ────────────────────────────────────────
     switch (action) {
 
       case "fileops":
         return _Router_handleFileOps(payload);
 
-      // ── Register new Agents below this line ───────────────────────────
-      // case "journal":
-      //   return JournalAgent_init(payload);
+      // ── Register new Gems below this line ─────────────────────────────
+      // case "mygemname":
+      //   return MyGemName_init(payload);
       // ──────────────────────────────────────────────────────────────────
 
       default:
