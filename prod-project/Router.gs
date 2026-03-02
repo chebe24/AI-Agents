@@ -60,6 +60,9 @@ function doPost(e) {
       case "fileops":
         return _Router_handleFileOps(payload);
 
+      case "logentry":
+        return LoggerAgent_logEntry(payload);
+
       // ── Register new Agents below this line ───────────────────────────
       // case "agentname":
       //   return AgentName_init(payload);
