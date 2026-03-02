@@ -168,12 +168,32 @@ cd .. && chmod +x ai-agents.sh
 
 ## Current Phase Status
 
-| Phase | Description                        | Status       |
-|-------|------------------------------------|--------------|
-| 1     | CLI Tooling (`ai-agents.sh`)       | ✅ Complete  |
-| 2     | Dev Environment Refactor (agents/) | ⏳ Planned   |
-| 3     | Python RelocationBridge            | ⏳ Planned   |
+| Phase | Description                                       | Status       |
+|-------|---------------------------------------------------|--------------|
+| 1     | CLI Tooling (`ai-agents.sh`)                      | ✅ Complete  |
+| 2     | LoggerAgent + System Log sheet                    | ✅ Complete  |
+| 3     | AI-Logbook Pipeline (ChatLogs + ProdLog)          | ✅ Complete  |
+| 4     | OCR Pipeline (Docker + hazel_ocr_bridge.sh v4.0)  | ✅ Complete  |
+| 5     | FilingAgent Hub (NamingAgent, OrganizerAgent)     | ⏳ Planned   |
 
 ---
 
-*Last updated: March 2026 — Gateway-OS v1.1*
+## OCR Pipeline
+
+Scanned documents dropped into `ScannedInbox/` are automatically processed:
+
+```
+ScannedInbox/ → Docker OCRmyPDF → Apps Script POST → ProdLog
+```
+
+**Routing rules:**
+- Math / M# subject codes → `33_Math/` + FLAIM Shared Drive copy
+- Mandarin → `41_Mandarin/` (personal)
+- Admin → `30_Administrative/`
+- No match → `00_Inbox/Quarantine`
+
+Language packs: `eng + chi_sim`
+
+---
+
+*Last updated: 2026-03-01 — Gateway-OS v1.2*
