@@ -61,7 +61,7 @@ function doPost(e) {
         return _Router_handleFileOps(payload);
 
       case "logentry":
-        return LoggerAgent_logEntry(payload);
+        return _Router_wrapResponse(LoggerAgent_logEntry(payload));
 
       // ── Register new Agents below this line ───────────────────────────
       // case "agentname":
@@ -109,4 +109,22 @@ function _Router_handleFileOps(payload) {
   }
 
   return buildResponse(200, "File operation logged successfully.");
+}
+
+/**
+ * Converts a plain Agent response object to a ContentService response.
+ * Agents now return plain objects (for testability), so Router wraps them
+ * into ContentService for webhook responses.
+ *
+ * @param {Object} plainResponse - Plain response object from Agent
+ * @returns {ContentService.TextOutput} HTTP response
+ */
+function _Router_wrapResponse(plainResponse) {
+  if (!plainResponse || typeof plainResponse !== 'object') {
+    return buildResponse(500, "Invalid Agent response");
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(plainResponse))
+    .setMimeType(ContentService.MimeType.JSON);
 }

@@ -100,7 +100,7 @@ function LoggerAgent_logEntry(payload) {
       `Row ${result.row} written to ChatLogs`
     );
 
-    return buildResponse(200, "Entry logged to ChatLogs", {
+    return _buildPlainResponse(200, "Entry logged to ChatLogs", {
       sheetName: result.sheetName,
       row: result.row,
       validationStatus: validationStatus,
@@ -109,13 +109,34 @@ function LoggerAgent_logEntry(payload) {
 
   } catch (e) {
     _ProdLog_write("LoggerAgent", "LOG_ENTRY_ERROR", "ERROR", e.message);
-    return buildResponse(500, "LoggerAgent error: " + e.message);
+    return _buildPlainResponse(500, "LoggerAgent error: " + e.message);
   }
 }
 
 // =============================================================================
 // PRIVATE HELPERS
 // =============================================================================
+
+/**
+ * Build a plain response object for direct function calls.
+ * Unlike buildResponse() in Utilities.gs (which returns ContentService for webhooks),
+ * this returns a plain JavaScript object that can be logged and inspected.
+ *
+ * The Router will convert this to ContentService when called via webhook.
+ *
+ * @param {number} code - HTTP status code
+ * @param {string} message - Response message
+ * @param {Object} data - Optional data payload
+ * @returns {Object} Plain response object
+ */
+function _buildPlainResponse(code, message, data) {
+  return {
+    code: code,
+    message: message,
+    data: data || {},
+    env: ENV
+  };
+}
 
 /**
  * Writes a row to the ChatLogs tab.
