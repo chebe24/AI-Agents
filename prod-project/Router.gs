@@ -28,9 +28,14 @@ function doGet(e) {
  *   "action":  "fileops" | <AgentName>,
  *   ...        (any other fields the Agent needs)
  * }
+ *
+ * 🔒 PROJECT SENTINEL: Authorization check on all webhook requests
  */
 function doPost(e) {
   try {
+    // 🔒 SECURITY CHECKPOINT - Verify authorized user
+    SecurityAgent_checkAuthorization();
+
     logEvent('WEBHOOK_RECEIVED', {
       timestamp:   new Date().toISOString(),
       contentType: e?.contentType || 'unknown',

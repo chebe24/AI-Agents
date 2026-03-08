@@ -43,10 +43,15 @@ function logEvent(eventType, payload) {
 }
 
 /**
- * Open the spreadsheet defined in Config.gs.
+ * Open the spreadsheet using secure Script Properties lookup.
+ * 🔒 Project Sentinel compliant - retrieves ID from vault, not hardcoded.
  */
 function getSpreadsheet() {
-  return SpreadsheetApp.openById(SPREADSHEET_ID);
+  const id = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
+  if (!id) {
+    throw new Error('🚨 CONFIGURATION ERROR: SPREADSHEET_ID not set in Script Properties');
+  }
+  return SpreadsheetApp.openById(id);
 }
 
 /**

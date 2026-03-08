@@ -10,9 +10,13 @@
 /**
  * Scan the configured Drive folder and update the Inventory sheet.
  * Run manually or on a time-based trigger.
+ *
+ * 🔒 PROJECT SENTINEL: Authorization check required
  */
 function updateInventory() {
-  checkAccount();
+  // 🔒 SECURITY CHECKPOINT - Verify authorized user
+  SecurityAgent_checkAuthorization();
+
   try {
     const folderId = getScriptProperty('DRIVE_FOLDER_ID');
     if (!folderId) throw new Error('DRIVE_FOLDER_ID not set in Script Properties.');

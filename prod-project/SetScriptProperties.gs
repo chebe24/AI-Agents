@@ -57,6 +57,57 @@ function setProductionScriptProperties() {
 }
 
 /**
+ * 🔒 PROJECT SENTINEL SETUP
+ * Sets ALL required Script Properties for production environment.
+ * Run this ONCE after deploying to production.
+ */
+function setupProductionSecurity() {
+  const scriptProperties = PropertiesService.getScriptProperties();
+
+  // Required production values
+  const PROD_SPREADSHEET_ID = "1kWtc6Z_kdgCEMCkYyLd9U300MGxdZLr0NzNSESIUsUE";
+  const AUTHORIZED_EMAIL = "cary.hebert@gmail.com";
+  const ENVIRONMENT = "production";
+  const GITHUB_URL = "https://raw.githubusercontent.com/chebe24/AI-Agents/main/pattern-registry.yaml";
+
+  Logger.log("=== Setting Production Script Properties ===");
+
+  // Set all properties
+  scriptProperties.setProperties({
+    'SPREADSHEET_ID': PROD_SPREADSHEET_ID,
+    'AUTHORIZED_EMAIL': AUTHORIZED_EMAIL,
+    'ENVIRONMENT': ENVIRONMENT,
+    'GITHUB_REGISTRY_URL': GITHUB_URL
+  });
+
+  Logger.log("✅ SPREADSHEET_ID set");
+  Logger.log("✅ AUTHORIZED_EMAIL set");
+  Logger.log("✅ ENVIRONMENT set");
+  Logger.log("✅ GITHUB_REGISTRY_URL set");
+
+  // Verify configuration
+  Logger.log("");
+  Logger.log("=== Verifying Configuration ===");
+  const result = SecurityAgent_validateConfiguration();
+
+  if (result.valid) {
+    Logger.log("✅ All Script Properties configured successfully!");
+    Logger.log("🔒 Project Sentinel compliance active");
+    return {
+      success: true,
+      message: "Production security configured successfully"
+    };
+  } else {
+    Logger.log("❌ Configuration incomplete");
+    Logger.log(`Missing: ${result.missing.join(', ')}`);
+    return {
+      success: false,
+      missing: result.missing
+    };
+  }
+}
+
+/**
  * Sets the GITHUB_REGISTRY_URL Script Property for PatternRegistryAgent
  * Run this function once from the Apps Script editor
  */
