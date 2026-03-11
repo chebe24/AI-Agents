@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./ai-agents.sh deploy:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(clasp login:*)",
+      "Bash(cat:*)",
+      "Bash(clasp push:*)",
+      "Bash(./ai-agents.sh auth:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

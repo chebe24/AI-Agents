@@ -2,8 +2,8 @@
 # Gateway-OS Pattern Registry
 # Version: 6.0
 # Maintained by: chebe24
-# Repository: AI-Agents
-# Last Updated: 2026-03-01
+# Repository: nexus-command
+# Last Updated: 2026-03-10
 # ============================================================
 # NAMING CONVENTION: ##-####-##-##_SubjectCode_FileType_Description.extension
 # Rules:
@@ -19,7 +19,7 @@ metadata:
   deprecated_versions:
     - "5.0"
   maintainer: "chebe24"
-  repository: "AI-Agents"
+  repository: "nexus-command"
 
 # ------------------------------------------------------------
 # DATE PREFIX (shared by all patterns)

@@ -1,0 +1,75 @@
+{
+  "composition": {
+    "name": "NexusAI Inventory System",
+    "version": "1.0.0",
+    "description": "AI agent inventory management for NexusAI project",
+    "environment": "production",
+    "account": "cary.hebert@gmail.com",
+    "created": "2026-03-07",
+    "origin": "Extracted from NexusAI/scripts/update-db.gs"
+  },
+  "blocks": {
+    "core": [
+      "Security",
+      "Utilities"
+    ],
+    "agents": [
+      "InventoryAgent"
+    ]
+  },
+  "additional_files": [],
+  "clasp": {
+    "script_id": "TBD_CREATE_NEW_GAS_PROJECT",
+    "root_dir": ".",
+    "timezone": "America/Chicago"
+  },
+  "script_properties": {
+    "required": [
+      "AUTHORIZED_EMAIL",
+      "SPREADSHEET_ID",
+      "DRIVE_FOLDER_ID",
+      "ENVIRONMENT"
+    ],
+    "recommended": [
+      "DEPRECATED_DAYS"
+    ]
+  },
+  "deployment": {
+    "web_app": false,
+    "execute_as": "me",
+    "access": "anyone",
+    "trigger_based": true
+  },
+  "sheets": {
+    "spreadsheet_id": "TBD_YOUR_NEXUS_AI_SHEET_ID",
+    "spreadsheet_name": "NexusAI Inventory",
+    "tabs": [
+      "Inventory",
+      "Security_Audit"
+    ]
+  },
+  "build": {
+    "load_order": [
+      "Utilities.gs",
+      "SecurityAgent.gs",
+      "InventoryAgent.gs"
+    ],
+    "exclude_patterns": [
+      "**/README.md",
+      "**/config.json",
+      "**/.DS_Store"
+    ]
+  },
+  "triggers": {
+    "recommended": [
+      {
+        "function": "InventoryAgent_init",
+        "type": "timeBased",
+        "frequency": "everyDays(1)",
+        "hour": 3,
+        "description": "Daily inventory scan at 3 AM"
+      }
+    ]
+  },
+  "notes": "Lightweight composition using only InventoryAgent. No Router (not a web app). Demonstrates reuse of NexusAI's original code as a block. This replaces NexusAI/scripts/update-db.gs entirely."
+}

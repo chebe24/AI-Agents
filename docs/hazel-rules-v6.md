@@ -92,7 +92,7 @@
 **Actions:**
 - Run embedded script:
   ```bash
-  /Users/caryhebert/scripts/hazel-trigger.sh "$1" "$2"
+  /Users/caryhebert/Developer/nexus-command/scripts/hazel-trigger.sh "$1" "$2"
   ```
 - Script logs naming error to ChatLogs via LoggerAgent
 - Receives filename as `$1` and filepath as `$2`
@@ -136,7 +136,7 @@ Files with invalid SubjectCodes (e.g., `ENG`, `HIST`) will:
 Use terminal to test V6 pattern matching:
 ```bash
 export DEPLOYMENT_ID="test_id"
-/Users/caryhebert/scripts/hazel-trigger.sh "15-2026-03-01_MATH_Quiz_Algebra.pdf" "/path/to/file"
+/Users/caryhebert/Developer/nexus-command/scripts/hazel-trigger.sh "15-2026-03-01_MATH_Quiz_Algebra.pdf" "/path/to/file"
 ```
 
 Expected output for valid: HTTP 200 (silent)

@@ -1,0 +1,72 @@
+{
+  "composition": {
+    "name": "Gateway-OS Development",
+    "version": "2.0.0",
+    "description": "Development/testing deployment of Gateway-OS",
+    "environment": "development",
+    "account": "cary.hebert@gmail.com",
+    "created": "2026-03-07"
+  },
+  "blocks": {
+    "core": [
+      "Security",
+      "Router",
+      "Utilities"
+    ],
+    "agents": [
+      "LoggerAgent",
+      "PatternRegistryAgent"
+    ]
+  },
+  "additional_files": [
+    "Config.gs",
+    "RelocationTracker.gs"
+  ],
+  "clasp": {
+    "script_id": "1sFIR8BG4Oo5RkOj3A9UFYSyJAuCS1cu9rFg-G2olJJfBOsIO3tObRTcB",
+    "root_dir": ".",
+    "timezone": "America/Chicago"
+  },
+  "script_properties": {
+    "required": [
+      "AUTHORIZED_EMAIL",
+      "SPREADSHEET_ID",
+      "ENVIRONMENT",
+      "GITHUB_REGISTRY_URL"
+    ],
+    "recommended": []
+  },
+  "deployment": {
+    "web_app": true,
+    "execute_as": "me",
+    "access": "anyone"
+  },
+  "sheets": {
+    "spreadsheet_id": "1KVHxSLUSk1LpySX2K1ITRXqxJKV4h-dpnd_Ia4lV6_E",
+    "spreadsheet_name": "AI Agents Command Hub",
+    "tabs": [
+      "File Ops",
+      "ChatLogs",
+      "ProdLog",
+      "Security_Audit",
+      "PatternRegistry"
+    ]
+  },
+  "build": {
+    "load_order": [
+      "Config.gs",
+      "Utilities.gs",
+      "SecurityAgent.gs",
+      "Router.gs",
+      "LoggerAgent.gs",
+      "PatternRegistryAgent.gs",
+      "RelocationTracker.gs"
+    ],
+    "exclude_patterns": [
+      "**/README.md",
+      "**/config.json",
+      "**/.DS_Store"
+    ]
+  },
+  "notes": "Development environment for Gateway-OS. Used for testing new agents and features before production deployment. InventoryAgent excluded (not needed in dev)."
+}

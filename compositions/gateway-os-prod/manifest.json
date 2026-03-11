@@ -1,0 +1,77 @@
+{
+  "composition": {
+    "name": "Gateway-OS Production",
+    "version": "2.0.0",
+    "description": "Production deployment of Gateway-OS automation platform",
+    "environment": "production",
+    "account": "cary.hebert@gmail.com",
+    "created": "2026-03-07"
+  },
+  "blocks": {
+    "core": [
+      "Security",
+      "Router",
+      "Utilities"
+    ],
+    "agents": [
+      "InventoryAgent",
+      "LoggerAgent",
+      "PatternRegistryAgent"
+    ]
+  },
+  "additional_files": [
+    "Config.gs",
+    "Triggers.gs"
+  ],
+  "clasp": {
+    "script_id": "1okfeLoXEpiq81Qdctv5Irph4oSO67VzhOtGTqJQGcd8gzkGhsSNUlT5G",
+    "root_dir": ".",
+    "timezone": "America/Chicago"
+  },
+  "script_properties": {
+    "required": [
+      "AUTHORIZED_EMAIL",
+      "SPREADSHEET_ID",
+      "ENVIRONMENT",
+      "GITHUB_REGISTRY_URL"
+    ],
+    "recommended": [
+      "DRIVE_FOLDER_ID"
+    ]
+  },
+  "deployment": {
+    "web_app": true,
+    "execute_as": "me",
+    "access": "anyone"
+  },
+  "sheets": {
+    "spreadsheet_id": "1kWtc6Z_kdgCEMCkYyLd9U300MGxdZLr0NzNSESIUsUE",
+    "spreadsheet_name": "AI_Agents_Command_Hub",
+    "tabs": [
+      "File Ops",
+      "ChatLogs",
+      "ProdLog",
+      "Security_Audit",
+      "PatternRegistry",
+      "Inventory"
+    ]
+  },
+  "build": {
+    "load_order": [
+      "Config.gs",
+      "Utilities.gs",
+      "SecurityAgent.gs",
+      "Router.gs",
+      "InventoryAgent.gs",
+      "LoggerAgent.gs",
+      "PatternRegistryAgent.gs",
+      "Triggers.gs"
+    ],
+    "exclude_patterns": [
+      "**/README.md",
+      "**/config.json",
+      "**/.DS_Store"
+    ]
+  },
+  "notes": "Production environment for Gateway-OS. All agents enabled. Project Sentinel security active."
+}

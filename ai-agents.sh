@@ -6,10 +6,11 @@
 # Updated : 2026-03
 #
 # Commands:
-#   auth   [dev|prod]    Check / rotate clasp OAuth + GitHub Secret
-#   agent  <AgentName>   Scaffold a new Agent file in dev-project/agents/
-#   deploy <dev|prod>    Push code to target GAS project via clasp
-#   help                 Show this message
+#   auth    [dev|prod]        Check / rotate clasp OAuth + GitHub Secret
+#   agent   <AgentName>       Scaffold a new Agent file in dev-project/agents/
+#   compose <composition>     Build a composition from blocks
+#   deploy  <dev|prod>        Push code to target GAS project via clasp
+#   help                      Show this message
 # =============================================================================
 set -euo pipefail
 
@@ -197,6 +198,29 @@ deploy() {
 }
 
 # =============================================================================
+# FUNCTION: compose
+#
+# Builds a composition by assembling blocks.
+# Wrapper around scripts/compose.sh
+# =============================================================================
+compose() {
+  local composition="${1:-}"
+
+  if [[ -z "$composition" ]]; then
+    error "No composition specified. Available: gateway-os-prod, gateway-os-dev, nexus-ai-inventory"
+  fi
+
+  local compose_script="$ROOT_DIR/scripts/compose.sh"
+
+  if [[ ! -f "$compose_script" ]]; then
+    error "Compose script not found: $compose_script"
+  fi
+
+  info "Building composition: $composition"
+  "$compose_script" "$composition"
+}
+
+# =============================================================================
 # ENTRYPOINT
 # =============================================================================
 main() {
@@ -206,21 +230,29 @@ main() {
   case "$command" in
     auth)    refresh_clasp_auth "$@" ;;
     agent)   create_agent       "$@" ;;
+    compose) compose            "$@" ;;
     deploy)  deploy             "$@" ;;
     help|*)
       echo ""
       echo "  Gateway-OS CLI — ai-agents.sh"
       echo ""
       echo "  Usage:"
-      echo "    ./ai-agents.sh auth   [dev|prod]    Check/rotate clasp auth + GitHub Secret"
-      echo "    ./ai-agents.sh agent  <AgentName>   Scaffold a new Agent in dev-project/agents/"
-      echo "    ./ai-agents.sh deploy <dev|prod>    Push code to the target GAS project"
+      echo "    ./ai-agents.sh auth    [dev|prod]        Check/rotate clasp auth + GitHub Secret"
+      echo "    ./ai-agents.sh agent   <AgentName>       Scaffold a new Agent in dev-project/agents/"
+      echo "    ./ai-agents.sh compose <composition>     Build composition from blocks"
+      echo "    ./ai-agents.sh deploy  <dev|prod>        Push code to the target GAS project"
       echo ""
       echo "  Examples:"
-      echo "    ./ai-agents.sh auth dev             # Verify dev token (auto-rotates if expired)"
-      echo "    ./ai-agents.sh agent Logger          # Creates dev-project/agents/LoggerAgent.gs"
-      echo "    ./ai-agents.sh deploy dev            # Push dev code to GAS"
-      echo "    ./ai-agents.sh deploy prod           # Push prod code (requires 'yes-prod')"
+      echo "    ./ai-agents.sh auth dev                  # Verify dev token (auto-rotates if expired)"
+      echo "    ./ai-agents.sh agent Logger              # Creates dev-project/agents/LoggerAgent.gs"
+      echo "    ./ai-agents.sh compose gateway-os-prod   # Assemble blocks → compositions/gateway-os-prod/"
+      echo "    ./ai-agents.sh deploy dev                # Push dev code to GAS"
+      echo "    ./ai-agents.sh deploy prod               # Push prod code (requires 'yes-prod')"
+      echo ""
+      echo "  Available Compositions:"
+      echo "    • gateway-os-prod      Full production deployment (8 files)"
+      echo "    • gateway-os-dev       Development environment (7 files)"
+      echo "    • nexus-ai-inventory   Standalone inventory system (3 files)"
       echo ""
       ;;
   esac

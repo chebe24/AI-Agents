@@ -1,0 +1,332 @@
+[
+  {
+    "name": "Today's Date ISO",
+    "keyword": ";tod",
+    "text": "{date format=\"yyyy-MM-dd\"}"
+  },
+  {
+    "name": "Month-Day",
+    "keyword": ";md",
+    "text": "{date format=\"MM-dd\"}"
+  },
+  {
+    "name": "Current Year",
+    "keyword": ";yr",
+    "text": "{date format=\"yyyy\"}"
+  },
+  {
+    "name": "Math LP Today",
+    "keyword": ";mathtod",
+    "text": "Math_M0#_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Math M01 LP Complete",
+    "keyword": ";math1lp",
+    "text": "Math_M01_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Math M02 LP Complete",
+    "keyword": ";math2lp",
+    "text": "Math_M02_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Math M03 LP Complete",
+    "keyword": ";math3lp",
+    "text": "Math_M03_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Math M04 LP Complete",
+    "keyword": ";math4lp",
+    "text": "Math_M04_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Math M05 LP Complete",
+    "keyword": ";math5lp",
+    "text": "Math_M05_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Math M06 LP Complete",
+    "keyword": ";math6lp",
+    "text": "Math_M06_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Math Pres Today",
+    "keyword": ";mathpres",
+    "text": "Math_M0#_{date format=\"yyyy-MM-dd\"}_Pres_"
+  },
+  {
+    "name": "Math Sheet Today",
+    "keyword": ";mathsheet",
+    "text": "Math_M0#_{date format=\"yyyy-MM-dd\"}_Sheet_"
+  },
+  {
+    "name": "Sci U1 LP Complete",
+    "keyword": ";sci1lp",
+    "text": "Sci_U1_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Sci U2 LP Complete",
+    "keyword": ";sci2lp",
+    "text": "Sci_U2_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Sci U3 LP Complete",
+    "keyword": ";sci3lp",
+    "text": "Sci_U3_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Sci LP Today",
+    "keyword": ";scitod",
+    "text": "Sci_U#_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Sci Pres Today",
+    "keyword": ";scipres",
+    "text": "Sci_U#_{date format=\"yyyy-MM-dd\"}_Pres_"
+  },
+  {
+    "name": "SS U1 LP Complete",
+    "keyword": ";ss1lp",
+    "text": "SS_U1_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "SS U2 LP Complete",
+    "keyword": ";ss2lp",
+    "text": "SS_U2_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "SS U3 LP Complete",
+    "keyword": ";ss3lp",
+    "text": "SS_U3_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "SS U4 LP Complete",
+    "keyword": ";ss4lp",
+    "text": "SS_U4_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "SS U5 LP Complete",
+    "keyword": ";ss5lp",
+    "text": "SS_U5_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "SS LP Today",
+    "keyword": ";sstod",
+    "text": "SS_U#_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "Admin PD Doc Today",
+    "keyword": ";pdtod",
+    "text": "Admin_PD_{date format=\"yyyy-MM-dd\"}_Doc_"
+  },
+  {
+    "name": "Admin Field Doc Today",
+    "keyword": ";fieldtod",
+    "text": "Admin_Field_{date format=\"yyyy-MM-dd\"}_Doc_"
+  },
+  {
+    "name": "Admin Comm Doc Today",
+    "keyword": ";commtod",
+    "text": "Admin_Comm_{date format=\"yyyy-MM-dd\"}_Doc_"
+  },
+  {
+    "name": "Admin PBIS Doc Today",
+    "keyword": ";pbistod",
+    "text": "Admin_PBIS_{date format=\"yyyy-MM-dd\"}_Doc_"
+  },
+  {
+    "name": "Admin Schedule Today",
+    "keyword": ";schetod",
+    "text": "Admin_Sche_{date format=\"yyyy-MM-dd\"}_Sheet_"
+  },
+  {
+    "name": "Admin Finance Today",
+    "keyword": ";fintod",
+    "text": "Admin_Fin_{date format=\"yyyy-MM-dd\"}_Sheet_"
+  },
+  {
+    "name": "Newsletter Today",
+    "keyword": ";newstod",
+    "text": "News_{date format=\"yyyy-MM-dd\"}_Doc_"
+  },
+  {
+    "name": "Data Sheet Today",
+    "keyword": ";datatod",
+    "text": "Data_{date format=\"yyyy-MM-dd\"}_Sheet_"
+  },
+  {
+    "name": "Template Math LP",
+    "keyword": ";tmplp",
+    "text": "Temp_Math_LP_"
+  },
+  {
+    "name": "Template Admin Doc",
+    "keyword": ";tmpdoc",
+    "text": "Temp_Admin_Doc_"
+  },
+  {
+    "name": "French Categories Help",
+    "keyword": ";frenhelp",
+    "text": "French Categories: ;grammaire, ;martiniq, ;phonet, ;stpat, ;stval, ;thnksgvng, ;hallown, ;temps, ;lectr, ;animx1, ;animx2, ;compartf, ;emotion, ;formes, ;fruits, ;motscaches, ;objets, ;corps, ;nmbrs010, ;nmbrs1120, ;diz, ;cents, ;saisons, ;quest, ;noel1, ;noel2, ;paques, ;maison, ;poemes, ;prep, ;verbes, ;mgras"
+  },
+  {
+    "name": "French - La grammaire LP",
+    "keyword": ";grammaire",
+    "text": "Fren_Grammaire_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - La Martinique LP",
+    "keyword": ";martiniq",
+    "text": "Fren_Martinq_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - La Phonetique LP",
+    "keyword": ";phonet",
+    "text": "Fren_Phonet_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - La Saint Patrick LP",
+    "keyword": ";stpat",
+    "text": "Fren_StPat_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - La Saint-Valentin LP",
+    "keyword": ";stval",
+    "text": "Fren_StVal_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Thanksgiving LP",
+    "keyword": ";thnksgvng",
+    "text": "Fren_Thnksgvng_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Halloween LP",
+    "keyword": ";hallown",
+    "text": "Fren_Hallown_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Le temps LP",
+    "keyword": ";temps",
+    "text": "Fren_Temps_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Lecture LP",
+    "keyword": ";lectr",
+    "text": "Fren_Lectr_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les animaux Partie I LP",
+    "keyword": ";animx1",
+    "text": "Fren_Animx1_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les animaux Partie II LP",
+    "keyword": ";animx2",
+    "text": "Fren_Animx2_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les comparatifs LP",
+    "keyword": ";compartf",
+    "text": "Fren_Compartf_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les emotions LP",
+    "keyword": ";emotion",
+    "text": "Fren_Emotion_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les formes LP",
+    "keyword": ";formes",
+    "text": "Fren_Formes_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les fruits LP",
+    "keyword": ";fruits",
+    "text": "Fren_Fruits_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les mots caches LP",
+    "keyword": ";motscaches",
+    "text": "Fren_MotsCaches_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les objets LP",
+    "keyword": ";objets",
+    "text": "Fren_Objets_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les parties de corps LP",
+    "keyword": ";corps",
+    "text": "Fren_Corps_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les nombres 0-10 LP",
+    "keyword": ";nmbrs010",
+    "text": "Fren_Nmbrs0-10_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les nombres 11-20 LP",
+    "keyword": ";nmbrs1120",
+    "text": "Fren_Nmbrs11-20_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les dizaines LP",
+    "keyword": ";diz",
+    "text": "Fren_Diz_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les centaines LP",
+    "keyword": ";cents",
+    "text": "Fren_Cents_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les saisons LP",
+    "keyword": ";saisons",
+    "text": "Fren_Saisons_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les questions LP",
+    "keyword": ";quest",
+    "text": "Fren_Quest_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Alphabet de Noel Partie I LP",
+    "keyword": ";noel1",
+    "text": "Fren_Noel1_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Alphabet de Noel Partie II LP",
+    "keyword": ";noel2",
+    "text": "Fren_Noel2_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Paques LP",
+    "keyword": ";paques",
+    "text": "Fren_Paques_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les pieces de la maison LP",
+    "keyword": ";maison",
+    "text": "Fren_Maison_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les poemes LP",
+    "keyword": ";poemes",
+    "text": "Fren_Poemes_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les prepositions LP",
+    "keyword": ";prep",
+    "text": "Fren_Prep_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Les verbes LP",
+    "keyword": ";verbes",
+    "text": "Fren_Verbes_{date format=\"yyyy-MM-dd\"}_LP_"
+  },
+  {
+    "name": "French - Mardi Gras LP",
+    "keyword": ";mgras",
+    "text": "Fren_MGras_{date format=\"yyyy-MM-dd\"}_LP_"
+  }
+]
