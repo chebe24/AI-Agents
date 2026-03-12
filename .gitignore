@@ -33,6 +33,7 @@
 !*.yml
 !*.toml
 !*.xml
+!*.plist
 
 # Python
 !*.py
